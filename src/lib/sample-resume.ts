@@ -49,4 +49,6 @@ export const SAMPLE_RESUME: ResumeContent = {
   projects: [],
   certifications: ["Certified UX Professional"],
   languages: ["English", "Spanish"],
+  achievements: ["Speaker at Design+Research Conference 2023"],
+  references: [],
 };

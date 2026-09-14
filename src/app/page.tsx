@@ -7,9 +7,12 @@ import {
   Save,
   ShieldCheck,
   Sparkles,
+  Star,
+  FileEdit,
 } from "lucide-react";
 import { TemplateThumbnail } from "@/components/resume-templates/template-thumbnail";
 import { FaqAccordion } from "@/components/faq-accordion";
+import { GoogleCtaButton } from "@/components/google-cta-button";
 
 const FEATURES = [
   {
@@ -65,6 +68,24 @@ const SHOWCASE = [
   { variant: "minimal" as const, accent: "#000000" },
 ];
 
+const TESTIMONIALS = [
+  {
+    quote: "I rebuilt my resume in 10 minutes and picked a template that actually matched my industry. Clean and fast.",
+    name: "Priya S.",
+    role: "Product Designer",
+  },
+  {
+    quote: "The ATS score meter helped me catch missing sections before I sent my resume out.",
+    name: "Daniel K.",
+    role: "Software Engineer",
+  },
+  {
+    quote: "Switching templates without losing my content was the feature I didn't know I needed.",
+    name: "Meera R.",
+    role: "Marketing Lead",
+  },
+];
+
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col overflow-x-hidden">
@@ -85,22 +106,29 @@ export default function Home() {
               Create Professional <span className="gradient-text">ATS-Friendly</span> Resumes That Get Interviews
             </h1>
             <p className="mt-4 max-w-xl text-lg text-zinc-600">
-              Build, optimize, and export a recruiter-ready resume in minutes — with 50 templates to choose from.
+              Build job-winning resumes with AI in less than 5 minutes.
             </p>
-            <div className="mt-8 flex gap-3">
+            <div className="mt-8 flex flex-wrap gap-3">
+              <GoogleCtaButton />
               <Link
-                href="/signup"
-                className="rounded-md bg-[#2563eb] px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-[#2563eb]/30 transition hover:-translate-y-0.5 hover:bg-[#1d4ed8] hover:shadow-xl hover:shadow-[#2563eb]/40"
-              >
-                Get Started Free
-              </Link>
-              <Link
-                href="/login"
+                href="/#templates"
                 className="rounded-md border border-gray-300 bg-white px-5 py-2.5 text-sm font-medium text-zinc-900 transition hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-md"
               >
-                Log in
+                View Templates
               </Link>
             </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-4 text-xs text-zinc-500">
+              <span className="flex items-center gap-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                ))}
+                4.8/5 rating
+              </span>
+              <span>50,000+ resumes created*</span>
+              <span>Trusted by professionals worldwide</span>
+            </div>
+            <p className="mt-1 text-[10px] text-zinc-400">*Illustrative figure for demonstration purposes.</p>
 
             <dl className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
               {STATS.map((stat) => (
@@ -179,6 +207,58 @@ export default function Home() {
               <p className="mt-2 text-sm text-zinc-600">{feature.description}</p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Dashboard preview mockup */}
+      <div className="border-t border-gray-200 bg-white px-6 py-16">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="text-2xl font-semibold text-zinc-900">Manage every resume in one dashboard</h2>
+          <p className="mt-2 text-sm text-zinc-600">Track completion, ATS score, and templates at a glance.</p>
+          <div className="mt-8 rounded-xl border border-gray-200 bg-zinc-50 p-4 text-left shadow-xl">
+            <div className="mb-3 flex items-center gap-2">
+              <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+              <span className="ml-2 flex items-center gap-1 text-xs text-zinc-400">
+                <FileEdit className="h-3 w-3" /> Your Resumes
+              </span>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              {SHOWCASE.slice(0, 3).map((t, i) => (
+                <div key={t.variant} className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                  <div className="h-1.5" style={{ backgroundColor: t.accent }} />
+                  <div className="p-3">
+                    <div className="h-2 w-2/3 rounded bg-gray-200" />
+                    <div className="mt-2 h-1.5 w-1/2 rounded bg-gray-100" />
+                    <div className="mt-3 text-[10px] font-medium text-primary">ATS Score: {88 + i * 4}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Testimonials */}
+      <div className="border-t border-gray-200 bg-zinc-50 px-6 py-16">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-center text-2xl font-semibold text-zinc-900">What people are saying</h2>
+          <p className="mt-1 text-center text-xs text-zinc-400">Illustrative feedback for demonstration purposes.</p>
+          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+            {TESTIMONIALS.map((t) => (
+              <div key={t.name} className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
+                <div className="mb-2 flex gap-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <p className="text-sm text-zinc-700">&ldquo;{t.quote}&rdquo;</p>
+                <p className="mt-3 text-xs font-semibold text-zinc-900">{t.name}</p>
+                <p className="text-xs text-zinc-500">{t.role}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

@@ -144,7 +144,24 @@ function MainSections({ content, variant, accent }: { content: ResumeContent; va
       <ExperienceBlock content={content} variant={variant} accent={accent} />
       <EducationBlock content={content} variant={variant} accent={accent} />
       <ProjectsBlock content={content} variant={variant} accent={accent} />
+      <TagBlock title="Achievements" items={content.achievements} variant={variant} accent={accent} />
     </>
+  );
+}
+
+function ReferencesBlock({ content, variant, accent }: { content: ResumeContent; variant: TemplateVariant; accent: string }) {
+  if (content.references.length === 0) return null;
+  return (
+    <section className="mb-3">
+      <SectionTitle variant={variant} accent={accent}>References</SectionTitle>
+      {content.references.map((ref) => (
+        <p key={ref.id} className="text-gray-700">
+          <span className="font-semibold text-gray-900">{ref.name}</span>
+          {ref.role && ` — ${ref.role}`}
+          {ref.contact && ` (${ref.contact})`}
+        </p>
+      ))}
+    </section>
   );
 }
 
@@ -154,6 +171,7 @@ function SideSections({ content, variant, accent }: { content: ResumeContent; va
       <TagBlock title="Skills" items={content.skills} variant={variant} accent={accent} />
       <TagBlock title="Certifications" items={content.certifications} variant={variant} accent={accent} />
       <TagBlock title="Languages" items={content.languages} variant={variant} accent={accent} />
+      <ReferencesBlock content={content} variant={variant} accent={accent} />
     </>
   );
 }

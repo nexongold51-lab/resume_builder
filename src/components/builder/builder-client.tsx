@@ -12,20 +12,28 @@ import {
   FolderKanban,
   Award,
   Languages as LanguagesIcon,
+  Trophy,
+  Users,
   Download,
+  FileDown,
+  ClipboardCheck,
+  Share2,
   ZoomIn,
   ZoomOut,
   Check,
   Loader2,
+  Wand2,
 } from "lucide-react";
-import type { ResumeContent, ExperienceItem, EducationItem, ProjectItem } from "@/types/resume";
+import type { ResumeContent, ExperienceItem, EducationItem, ProjectItem, ReferenceItem } from "@/types/resume";
 import { ResumeTemplate } from "@/components/resume-templates/resume-template";
 import { TemplatePicker } from "@/components/resume-templates/template-picker";
 import { getTemplateById, type TemplateMeta } from "@/components/resume-templates/registry";
 import { AccordionSection } from "@/components/builder/accordion-section";
 import { SectionNav, type SectionNavItem } from "@/components/builder/section-nav";
 import { ResumeScoreCard } from "@/components/builder/resume-score-card";
+import { AtsReportModal } from "@/components/builder/ats-report-modal";
 import { computeResumeScore } from "@/lib/resume-score";
+import { generateSummary, rewriteExperience, keywordSuggestions } from "@/lib/ai-helpers";
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
@@ -46,7 +54,10 @@ export function BuilderClient({
   const [template, setTemplate] = useState<TemplateMeta>(getTemplateById(initialTemplateId));
   const [pickerOpen, setPickerOpen] = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [zoom, setZoom] = useState(0.42);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [shareStatus, setShareStatus] = useState<"idle" | "sharing" | "copied">("idle");
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const scheduleSave = useCallback(
@@ -60,6 +71,7 @@ export function BuilderClient({
           body: JSON.stringify({ content: next, templateId }),
         });
         setSaveState("saved");
+        setLastSavedAt(new Date());
       }, 800);
     },
     [resumeId]
@@ -80,6 +92,23 @@ export function BuilderClient({
     update({ ...content, skills: [...content.skills, skill] });
   }
 
+  async function shareResume() {
+    setShareStatus("sharing");
+    const res = await fetch(`/api/resumes/${resumeId}/share`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isPublic: true }),
+    });
+    const data = await res.json().catch(() => null);
+    if (data?.shareSlug) {
+      await navigator.clipboard.writeText(`${window.location.origin}/r/${data.shareSlug}`);
+      setShareStatus("copied");
+      setTimeout(() => setShareStatus("idle"), 2000);
+    } else {
+      setShareStatus("idle");
+    }
+  }
+
   useEffect(() => {
     return () => {
       if (saveTimeout.current) clearTimeout(saveTimeout.current);
@@ -97,6 +126,8 @@ export function BuilderClient({
     projects: content.projects.length > 0,
     certifications: content.certifications.length > 0,
     languages: content.languages.length > 0,
+    achievements: content.achievements.length > 0,
+    references: content.references.length > 0,
   };
 
   const navItems: SectionNavItem[] = [
@@ -108,6 +139,8 @@ export function BuilderClient({
     { id: "section-projects", label: "Projects", icon: FolderKanban, complete: sectionStatus.projects },
     { id: "section-certifications", label: "Certifications", icon: Award, complete: sectionStatus.certifications },
     { id: "section-languages", label: "Languages", icon: LanguagesIcon, complete: sectionStatus.languages },
+    { id: "section-achievements", label: "Achievements", icon: Trophy, complete: sectionStatus.achievements },
+    { id: "section-references", label: "References", icon: Users, complete: sectionStatus.references },
   ];
 
   return (
@@ -123,13 +156,34 @@ export function BuilderClient({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <SaveIndicator state={saveState} />
+            <SaveIndicator state={saveState} lastSavedAt={lastSavedAt} />
             <button
               onClick={() => setPickerOpen(true)}
               className="hidden rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 sm:block"
             >
               🎨 {template.name}
             </button>
+            <button
+              onClick={() => setReportOpen(true)}
+              className="hidden items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 sm:flex"
+            >
+              <ClipboardCheck className="h-3.5 w-3.5" />
+              ATS Report
+            </button>
+            <button
+              onClick={shareResume}
+              className="hidden items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 sm:flex"
+            >
+              <Share2 className="h-3.5 w-3.5" />
+              {shareStatus === "copied" ? "Link copied!" : shareStatus === "sharing" ? "Sharing…" : "Share"}
+            </button>
+            <a
+              href={`/api/resumes/${resumeId}/docx`}
+              className="hidden items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 sm:flex"
+            >
+              <FileDown className="h-3.5 w-3.5" />
+              DOCX
+            </a>
             <a
               href={`/resume/${resumeId}/print`}
               target="_blank"
@@ -158,12 +212,36 @@ export function BuilderClient({
           </AccordionSection>
 
           <AccordionSection id="section-summary" icon={FileText} title="Summary" complete={sectionStatus.summary}>
+            <div className="mb-2 flex justify-end">
+              <button
+                onClick={() => update({ ...content, summary: generateSummary(content) })}
+                className="flex items-center gap-1 rounded-md bg-primary-light px-2.5 py-1 text-xs font-medium text-primary hover:bg-primary/20"
+              >
+                <Wand2 className="h-3 w-3" /> Generate Summary
+              </button>
+            </div>
             <FloatingTextArea
               id="summary"
               label="Professional Summary"
               value={content.summary}
               onChange={(summary) => update({ ...content, summary })}
             />
+            {keywordSuggestions(content).length > 0 && (
+              <div className="mt-2">
+                <p className="text-xs font-medium text-gray-500">Keyword suggestions for ATS</p>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {keywordSuggestions(content).slice(0, 4).map((kw) => (
+                    <button
+                      key={kw}
+                      onClick={() => update({ ...content, summary: `${content.summary} ${kw}`.trim() })}
+                      className="rounded-full border border-gray-200 px-2.5 py-1 text-xs text-gray-600 hover:bg-gray-50"
+                    >
+                      + {kw}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </AccordionSection>
 
           <AccordionSection id="section-experience" icon={Briefcase} title="Experience" complete={sectionStatus.experience}>
@@ -196,6 +274,18 @@ export function BuilderClient({
               items={content.languages}
               onChange={(languages) => update({ ...content, languages })}
             />
+          </AccordionSection>
+
+          <AccordionSection id="section-achievements" icon={Trophy} title="Achievements" complete={sectionStatus.achievements}>
+            <TagListSection
+              label="Achievements"
+              items={content.achievements}
+              onChange={(achievements) => update({ ...content, achievements })}
+            />
+          </AccordionSection>
+
+          <AccordionSection id="section-references" icon={Users} title="References" complete={sectionStatus.references}>
+            <ReferencesSection content={content} onChange={update} />
           </AccordionSection>
         </div>
 
@@ -237,12 +327,27 @@ export function BuilderClient({
       {pickerOpen && (
         <TemplatePicker selectedId={template.id} onSelect={selectTemplate} onClose={() => setPickerOpen(false)} />
       )}
+      {reportOpen && <AtsReportModal result={score} onClose={() => setReportOpen(false)} />}
     </div>
   );
 }
 
-function SaveIndicator({ state }: { state: "idle" | "saving" | "saved" }) {
+function SaveIndicator({
+  state,
+  lastSavedAt,
+}: {
+  state: "idle" | "saving" | "saved";
+  lastSavedAt: Date | null;
+}) {
+  const [, forceTick] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => forceTick((n) => n + 1), 15000);
+    return () => clearInterval(interval);
+  }, []);
+
   if (state === "idle") return null;
+
   return (
     <span className="animate-toast-in flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
       {state === "saving" ? (
@@ -251,11 +356,21 @@ function SaveIndicator({ state }: { state: "idle" | "saving" | "saved" }) {
         </>
       ) : (
         <>
-          <Check className="h-3 w-3 text-success" /> Saved
+          <Check className="h-3 w-3 text-success" /> Saved{lastSavedAt ? ` · ${relativeTime(lastSavedAt)}` : ""}
         </>
       )}
     </span>
   );
+}
+
+function relativeTime(date: Date): string {
+  const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (seconds < 30) return "just now";
+  if (seconds < 60) return `${seconds}s ago`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  return `${hours} hour${hours === 1 ? "" : "s"} ago`;
 }
 
 function FloatingField({
@@ -448,9 +563,18 @@ function ExperienceSection({
               onChange={(v) => update(exp.id, { description: v })}
             />
           </div>
-          <button onClick={() => remove(exp.id)} className="mt-2 text-xs font-medium text-red-500 hover:text-red-600">
-            Remove
-          </button>
+          <div className="mt-2 flex items-center justify-between">
+            <button onClick={() => remove(exp.id)} className="text-xs font-medium text-red-500 hover:text-red-600">
+              Remove
+            </button>
+            <button
+              onClick={() => update(exp.id, { description: rewriteExperience(exp.description) })}
+              disabled={!exp.description.trim()}
+              className="flex items-center gap-1 rounded-md bg-primary-light px-2.5 py-1 text-xs font-medium text-primary hover:bg-primary/20 disabled:opacity-40"
+            >
+              <Wand2 className="h-3 w-3" /> Improve wording
+            </button>
+          </div>
         </div>
       ))}
       <button onClick={addItem} className="w-full rounded-lg border border-dashed border-gray-300 py-2 text-xs font-medium text-primary hover:bg-primary-light">
@@ -564,3 +688,48 @@ function ProjectsSection({
     </div>
   );
 }
+
+function ReferencesSection({
+  content,
+  onChange,
+}: {
+  content: ResumeContent;
+  onChange: (c: ResumeContent) => void;
+}) {
+  function addItem() {
+    const item: ReferenceItem = { id: uid(), name: "", role: "", contact: "" };
+    onChange({ ...content, references: [...content.references, item] });
+  }
+
+  function update(id: string, patch: Partial<ReferenceItem>) {
+    onChange({
+      ...content,
+      references: content.references.map((r) => (r.id === id ? { ...r, ...patch } : r)),
+    });
+  }
+
+  function remove(id: string) {
+    onChange({ ...content, references: content.references.filter((r) => r.id !== id) });
+  }
+
+  return (
+    <div className="space-y-3">
+      {content.references.map((ref) => (
+        <div key={ref.id} className="rounded-lg border border-gray-200 p-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            <FloatingField id={`ref-name-${ref.id}`} label="Name" value={ref.name} onChange={(v) => update(ref.id, { name: v })} />
+            <FloatingField id={`ref-role-${ref.id}`} label="Role" value={ref.role} onChange={(v) => update(ref.id, { role: v })} />
+            <FloatingField id={`ref-contact-${ref.id}`} label="Contact" value={ref.contact} onChange={(v) => update(ref.id, { contact: v })} />
+          </div>
+          <button onClick={() => remove(ref.id)} className="mt-2 text-xs font-medium text-red-500 hover:text-red-600">
+            Remove
+          </button>
+        </div>
+      ))}
+      <button onClick={addItem} className="w-full rounded-lg border border-dashed border-gray-300 py-2 text-xs font-medium text-primary hover:bg-primary-light">
+        + Add Reference
+      </button>
+    </div>
+  );
+}
+

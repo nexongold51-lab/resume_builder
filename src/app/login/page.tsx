@@ -20,6 +20,7 @@ function LoginForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -84,6 +85,20 @@ function LoginForm() {
           onChange={(e) => setPassword(e.target.value)}
           className="rounded-md border border-gray-300 px-3 py-2 text-sm"
         />
+        <div className="flex items-center justify-between text-sm">
+          <label className="flex items-center gap-1.5 text-gray-600">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="rounded border-gray-300"
+            />
+            Remember me
+          </label>
+          <Link href="/forgot-password" className="text-primary hover:underline">
+            Forgot password?
+          </Link>
+        </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button
           type="submit"

@@ -38,6 +38,13 @@ export const projectItemSchema = z.object({
   description: z.string().default(""),
 });
 
+export const referenceItemSchema = z.object({
+  id: z.string(),
+  name: z.string().default(""),
+  role: z.string().default(""),
+  contact: z.string().default(""),
+});
+
 export const resumeContentSchema = z.object({
   personalInfo: personalInfoSchema,
   summary: z.string().default(""),
@@ -47,12 +54,15 @@ export const resumeContentSchema = z.object({
   projects: z.array(projectItemSchema).default([]),
   certifications: z.array(z.string()).default([]),
   languages: z.array(z.string()).default([]),
+  achievements: z.array(z.string()).default([]),
+  references: z.array(referenceItemSchema).default([]),
 });
 
 export type PersonalInfo = z.infer<typeof personalInfoSchema>;
 export type ExperienceItem = z.infer<typeof experienceItemSchema>;
 export type EducationItem = z.infer<typeof educationItemSchema>;
 export type ProjectItem = z.infer<typeof projectItemSchema>;
+export type ReferenceItem = z.infer<typeof referenceItemSchema>;
 export type ResumeContent = z.infer<typeof resumeContentSchema>;
 
 export function emptyResumeContent(): ResumeContent {
@@ -73,5 +83,7 @@ export function emptyResumeContent(): ResumeContent {
     projects: [],
     certifications: [],
     languages: [],
+    achievements: [],
+    references: [],
   };
 }
