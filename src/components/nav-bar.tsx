@@ -18,6 +18,12 @@ export async function NavBar() {
           <Link href="/#templates" className="hidden text-gray-600 hover:text-gray-900 sm:block">
             Templates
           </Link>
+          <Link href="/#features" className="hidden text-gray-600 hover:text-gray-900 md:block">
+            Features
+          </Link>
+          <Link href="/#success-stories" className="hidden text-gray-600 hover:text-gray-900 md:block">
+            Success Stories
+          </Link>
           <Link href="/pricing" className="text-gray-600 hover:text-gray-900">
             Pricing
           </Link>

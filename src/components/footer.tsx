@@ -27,13 +27,12 @@ export function Footer() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Templates</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Legal</p>
             <ul className="mt-3 space-y-2 text-sm text-gray-600">
-              <li>Professional</li>
-              <li>Modern</li>
-              <li>Executive</li>
-              <li>Creative</li>
-              <li>Minimal ATS</li>
+              <li><Link href="/privacy" className="hover:text-gray-900">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-gray-900">Terms of Service</Link></li>
+              <li><Link href="/contact" className="hover:text-gray-900">Contact</Link></li>
+              <li><Link href="/refund-policy" className="hover:text-gray-900">Refund Policy</Link></li>
             </ul>
           </div>
 

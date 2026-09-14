@@ -11,6 +11,7 @@ import {
   FileEdit,
 } from "lucide-react";
 import { TemplateThumbnail } from "@/components/resume-templates/template-thumbnail";
+import { TemplateGallery } from "@/components/template-gallery";
 import { FaqAccordion } from "@/components/faq-accordion";
 import { GoogleCtaButton } from "@/components/google-cta-button";
 
@@ -174,17 +175,13 @@ export default function Home() {
 
       {/* Template showcase */}
       <div id="templates" className="scroll-mt-20 border-t border-gray-200 bg-gradient-to-b from-zinc-50 to-white px-6 py-16">
-        <div className="mx-auto max-w-5xl text-center">
+        <div className="mx-auto max-w-6xl text-center">
           <h2 className="text-2xl font-semibold text-zinc-900">50 Templates Across 5 Categories</h2>
           <p className="mt-2 text-sm text-zinc-600">
             Professional · Modern · Executive · Creative · Minimal ATS — each with 10 color themes.
           </p>
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-5">
-            {SHOWCASE.map((t) => (
-              <div key={t.variant} className="transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl">
-                <TemplateThumbnail variant={t.variant} accent={t.accent} scale={0.26} heightPx={220} />
-              </div>
-            ))}
+          <div className="mt-10">
+            <TemplateGallery />
           </div>
           <Link href="/signup" className="mt-8 inline-block text-sm font-medium text-[#2563eb] hover:underline">
             Browse all 50 templates →
@@ -193,7 +190,7 @@ export default function Home() {
       </div>
 
       {/* Features */}
-      <div className="border-t border-gray-200 bg-white px-6 py-16">
+      <div id="features" className="scroll-mt-20 border-t border-gray-200 bg-white px-6 py-16">
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 sm:grid-cols-3">
           {FEATURES.map((feature) => (
             <div
@@ -241,7 +238,7 @@ export default function Home() {
       </div>
 
       {/* Testimonials */}
-      <div className="border-t border-gray-200 bg-zinc-50 px-6 py-16">
+      <div id="success-stories" className="scroll-mt-20 border-t border-gray-200 bg-zinc-50 px-6 py-16">
         <div className="mx-auto max-w-5xl">
           <h2 className="text-center text-2xl font-semibold text-zinc-900">What people are saying</h2>
           <p className="mt-1 text-center text-xs text-zinc-400">Illustrative feedback for demonstration purposes.</p>
