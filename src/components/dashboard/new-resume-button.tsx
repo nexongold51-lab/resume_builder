@@ -22,7 +22,7 @@ export function NewResumeButton() {
     <button
       onClick={createResume}
       disabled={loading}
-      className="rounded-md bg-[#464feb] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+      className="rounded-md bg-[#2563eb] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
     >
       {loading ? "Creating..." : "+ New Resume"}
     </button>

@@ -31,7 +31,7 @@ export default async function DashboardPage() {
 
       {resumes.length === 0 ? (
         <div className="mt-6 rounded-xl border border-dashed border-gray-300 bg-white px-6 py-16 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#464feb]/10 text-xl">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#2563eb]/10 text-xl">
             📄
           </div>
           <h2 className="text-lg font-semibold text-gray-900">No resumes yet</h2>
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
               <li key={resume.id}>
                 <Link
                   href={`/builder/${resume.id}`}
-                  className="block overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:border-[#464feb] hover:shadow-md"
+                  className="block overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:border-[#2563eb] hover:shadow-md"
                 >
                   <div className="h-2" style={{ backgroundColor: template.accent }} />
                   <div className="p-4">
@@ -61,7 +61,7 @@ export default async function DashboardPage() {
                     </p>
                     <p className="mt-2 text-xs text-gray-400">{template.name}</p>
                     {resume.atsScore != null && (
-                      <p className="mt-2 text-xs font-medium text-[#464feb]">
+                      <p className="mt-2 text-xs font-medium text-[#2563eb]">
                         ATS Score: {resume.atsScore}
                       </p>
                     )}

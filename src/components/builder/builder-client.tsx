@@ -1,11 +1,31 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import {
+  ArrowLeft,
+  User,
+  FileText,
+  Sparkles,
+  Briefcase,
+  GraduationCap,
+  FolderKanban,
+  Award,
+  Languages as LanguagesIcon,
+  Download,
+  ZoomIn,
+  ZoomOut,
+  Check,
+  Loader2,
+} from "lucide-react";
 import type { ResumeContent, ExperienceItem, EducationItem, ProjectItem } from "@/types/resume";
 import { ResumeTemplate } from "@/components/resume-templates/resume-template";
 import { TemplatePicker } from "@/components/resume-templates/template-picker";
 import { getTemplateById, type TemplateMeta } from "@/components/resume-templates/registry";
+import { AccordionSection } from "@/components/builder/accordion-section";
+import { SectionNav, type SectionNavItem } from "@/components/builder/section-nav";
+import { ResumeScoreCard } from "@/components/builder/resume-score-card";
+import { computeResumeScore } from "@/lib/resume-score";
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
@@ -25,20 +45,21 @@ export function BuilderClient({
   const [content, setContent] = useState<ResumeContent>(initialContent);
   const [template, setTemplate] = useState<TemplateMeta>(getTemplateById(initialTemplateId));
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [zoom, setZoom] = useState(0.42);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const scheduleSave = useCallback(
     (next: ResumeContent, templateId: string) => {
       if (saveTimeout.current) clearTimeout(saveTimeout.current);
       saveTimeout.current = setTimeout(async () => {
-        setSaving(true);
+        setSaveState("saving");
         await fetch(`/api/resumes/${resumeId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ content: next, templateId }),
         });
-        setSaving(false);
+        setSaveState("saved");
       }, 800);
     },
     [resumeId]
@@ -55,105 +76,250 @@ export function BuilderClient({
     scheduleSave(content, next.id);
   }
 
+  function addSkill(skill: string) {
+    update({ ...content, skills: [...content.skills, skill] });
+  }
+
   useEffect(() => {
     return () => {
       if (saveTimeout.current) clearTimeout(saveTimeout.current);
     };
   }, []);
 
+  const score = useMemo(() => computeResumeScore(content), [content]);
+
+  const sectionStatus = {
+    personal: Boolean(content.personalInfo.fullName && content.personalInfo.email && content.personalInfo.phone),
+    summary: content.summary.trim().length >= 40,
+    experience: content.experience.length > 0 && content.experience.some((e) => e.description.trim()),
+    education: content.education.length > 0,
+    skills: content.skills.length >= 3,
+    projects: content.projects.length > 0,
+    certifications: content.certifications.length > 0,
+    languages: content.languages.length > 0,
+  };
+
+  const navItems: SectionNavItem[] = [
+    { id: "section-personal", label: "Personal Info", icon: User, complete: sectionStatus.personal },
+    { id: "section-summary", label: "Summary", icon: FileText, complete: sectionStatus.summary },
+    { id: "section-experience", label: "Experience", icon: Briefcase, complete: sectionStatus.experience },
+    { id: "section-education", label: "Education", icon: GraduationCap, complete: sectionStatus.education },
+    { id: "section-skills", label: "Skills", icon: Sparkles, complete: sectionStatus.skills },
+    { id: "section-projects", label: "Projects", icon: FolderKanban, complete: sectionStatus.projects },
+    { id: "section-certifications", label: "Certifications", icon: Award, complete: sectionStatus.certifications },
+    { id: "section-languages", label: "Languages", icon: LanguagesIcon, complete: sectionStatus.languages },
+  ];
+
   return (
-    <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-2">
-      <div>
-        <div className="mb-4 flex items-center justify-between">
-          <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-800">
-            ← Back to dashboard
-          </Link>
-          <span className="text-xs text-gray-400">{saving ? "Saving..." : "Saved"}</span>
+    <div className="min-h-screen bg-surface">
+      {/* Toolbar */}
+      <div className="sticky top-[57px] z-30 border-b border-gray-200 bg-white/90 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <Link href="/dashboard" className="flex shrink-0 items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+            <h1 className="truncate text-sm font-semibold text-gray-900 sm:text-base">{title}</h1>
+          </div>
+
+          <div className="flex items-center gap-2 sm:gap-3">
+            <SaveIndicator state={saveState} />
+            <button
+              onClick={() => setPickerOpen(true)}
+              className="hidden rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 sm:block"
+            >
+              🎨 {template.name}
+            </button>
+            <a
+              href={`/resume/${resumeId}/print`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded-lg bg-success px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-600 sm:text-sm"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Download PDF
+            </a>
+          </div>
         </div>
-
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-lg font-semibold">{title}</h1>
-          <button
-            onClick={() => setPickerOpen(true)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium hover:bg-gray-50"
-          >
-            Template: {template.name}
-          </button>
-        </div>
-
-        <PersonalInfoForm content={content} onChange={update} />
-        <TextAreaSection
-          label="Professional Summary"
-          value={content.summary}
-          onChange={(summary) => update({ ...content, summary })}
-        />
-        <TagListSection
-          label="Skills"
-          items={content.skills}
-          onChange={(skills) => update({ ...content, skills })}
-        />
-        <ExperienceSection content={content} onChange={update} />
-        <EducationSection content={content} onChange={update} />
-        <ProjectsSection content={content} onChange={update} />
-        <TagListSection
-          label="Certifications"
-          items={content.certifications}
-          onChange={(certifications) => update({ ...content, certifications })}
-        />
-        <TagListSection
-          label="Languages"
-          items={content.languages}
-          onChange={(languages) => update({ ...content, languages })}
-        />
-
-        <a
-          href={`/resume/${resumeId}/print`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-6 inline-block rounded-md bg-[#464feb] px-4 py-2 text-sm font-medium text-white"
-        >
-          Download PDF
-        </a>
       </div>
 
-      <div className="lg:sticky lg:top-6 lg:self-start">
-        <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
-          <ResumeTemplate content={content} variant={template.variant} accent={template.accent} />
+      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-6 lg:grid-cols-[200px_1fr_1fr]">
+        {/* Left: section nav */}
+        <div className="lg:sticky lg:top-[130px] lg:self-start">
+          <SectionNav items={navItems} />
+        </div>
+
+        {/* Center: form editor */}
+        <div className="space-y-4">
+          <ResumeScoreCard result={score} onAddSkill={addSkill} />
+
+          <AccordionSection id="section-personal" icon={User} title="Personal Info" complete={sectionStatus.personal} defaultOpen>
+            <PersonalInfoForm content={content} onChange={update} />
+          </AccordionSection>
+
+          <AccordionSection id="section-summary" icon={FileText} title="Summary" complete={sectionStatus.summary}>
+            <FloatingTextArea
+              id="summary"
+              label="Professional Summary"
+              value={content.summary}
+              onChange={(summary) => update({ ...content, summary })}
+            />
+          </AccordionSection>
+
+          <AccordionSection id="section-experience" icon={Briefcase} title="Experience" complete={sectionStatus.experience}>
+            <ExperienceSection content={content} onChange={update} />
+          </AccordionSection>
+
+          <AccordionSection id="section-education" icon={GraduationCap} title="Education" complete={sectionStatus.education}>
+            <EducationSection content={content} onChange={update} />
+          </AccordionSection>
+
+          <AccordionSection id="section-skills" icon={Sparkles} title="Skills" complete={sectionStatus.skills}>
+            <TagListSection label="Skills" items={content.skills} onChange={(skills) => update({ ...content, skills })} />
+          </AccordionSection>
+
+          <AccordionSection id="section-projects" icon={FolderKanban} title="Projects" complete={sectionStatus.projects}>
+            <ProjectsSection content={content} onChange={update} />
+          </AccordionSection>
+
+          <AccordionSection id="section-certifications" icon={Award} title="Certifications" complete={sectionStatus.certifications}>
+            <TagListSection
+              label="Certifications"
+              items={content.certifications}
+              onChange={(certifications) => update({ ...content, certifications })}
+            />
+          </AccordionSection>
+
+          <AccordionSection id="section-languages" icon={LanguagesIcon} title="Languages" complete={sectionStatus.languages}>
+            <TagListSection
+              label="Languages"
+              items={content.languages}
+              onChange={(languages) => update({ ...content, languages })}
+            />
+          </AccordionSection>
+        </div>
+
+        {/* Right: live preview */}
+        <div className="lg:sticky lg:top-[130px] lg:self-start">
+          <div className="mb-2 flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm">
+            <span className="text-xs font-medium text-gray-500">Live Preview</span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setZoom((z) => Math.max(0.24, +(z - 0.06).toFixed(2)))}
+                className="rounded-md p-1 text-gray-500 hover:bg-gray-100"
+                aria-label="Zoom out"
+              >
+                <ZoomOut className="h-3.5 w-3.5" />
+              </button>
+              <span className="w-9 text-center text-xs text-gray-500">{Math.round(zoom * 100)}%</span>
+              <button
+                onClick={() => setZoom((z) => Math.min(0.7, +(z + 0.06).toFixed(2)))}
+                className="rounded-md p-1 text-gray-500 hover:bg-gray-100"
+                aria-label="Zoom in"
+              >
+                <ZoomIn className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+          <div className="overflow-hidden rounded-xl border border-gray-200 bg-gray-100 p-4 shadow-sm">
+            <div
+              className="mx-auto overflow-hidden rounded-md bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)]"
+              style={{ width: `${8.5 * 96 * zoom}px` }}
+            >
+              <div style={{ width: `${100 / zoom}%`, transform: `scale(${zoom})`, transformOrigin: "top left" }}>
+                <ResumeTemplate content={content} variant={template.variant} accent={template.accent} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
       {pickerOpen && (
-        <TemplatePicker
-          selectedId={template.id}
-          onSelect={selectTemplate}
-          onClose={() => setPickerOpen(false)}
-        />
+        <TemplatePicker selectedId={template.id} onSelect={selectTemplate} onClose={() => setPickerOpen(false)} />
       )}
     </div>
   );
 }
 
-function Field({
+function SaveIndicator({ state }: { state: "idle" | "saving" | "saved" }) {
+  if (state === "idle") return null;
+  return (
+    <span className="animate-toast-in flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+      {state === "saving" ? (
+        <>
+          <Loader2 className="h-3 w-3 animate-spin" /> Saving…
+        </>
+      ) : (
+        <>
+          <Check className="h-3 w-3 text-success" /> Saved
+        </>
+      )}
+    </span>
+  );
+}
+
+function FloatingField({
+  id,
   label,
   value,
   onChange,
   placeholder,
 }: {
+  id: string;
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
 }) {
   return (
-    <label className="flex flex-col gap-1 text-xs font-medium text-gray-600">
-      {label}
+    <div className="relative">
       <input
+        id={id}
         value={value}
-        placeholder={placeholder}
+        placeholder={placeholder ?? " "}
         onChange={(e) => onChange(e.target.value)}
-        className="rounded-md border border-gray-300 px-2 py-1.5 text-sm text-black"
+        className="peer w-full rounded-lg border border-gray-300 px-3 pb-2 pt-5 text-sm text-gray-900 placeholder-transparent focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
-    </label>
+      <label
+        htmlFor={id}
+        className="pointer-events-none absolute left-3 top-1.5 text-xs text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-primary"
+      >
+        {label}
+      </label>
+    </div>
+  );
+}
+
+function FloatingTextArea({
+  id,
+  label,
+  value,
+  onChange,
+  rows = 4,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  rows?: number;
+}) {
+  return (
+    <div className="relative">
+      <textarea
+        id={id}
+        value={value}
+        placeholder=" "
+        rows={rows}
+        onChange={(e) => onChange(e.target.value)}
+        className="peer w-full rounded-lg border border-gray-300 px-3 pb-2 pt-5 text-sm text-gray-900 placeholder-transparent focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+      />
+      <label
+        htmlFor={id}
+        className="pointer-events-none absolute left-3 top-1.5 text-xs text-gray-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400 peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-primary"
+      >
+        {label}
+      </label>
+    </div>
   );
 }
 
@@ -170,37 +336,14 @@ function PersonalInfoForm({
   }
 
   return (
-    <fieldset className="mb-6 grid grid-cols-2 gap-3">
-      <legend className="mb-2 text-sm font-semibold">Personal Information</legend>
-      <Field label="Full name" value={p.fullName} onChange={(v) => set("fullName", v)} />
-      <Field label="Headline" value={p.headline} onChange={(v) => set("headline", v)} />
-      <Field label="Email" value={p.email} onChange={(v) => set("email", v)} />
-      <Field label="Phone" value={p.phone} onChange={(v) => set("phone", v)} />
-      <Field label="Location" value={p.location} onChange={(v) => set("location", v)} />
-      <Field label="Website" value={p.website} onChange={(v) => set("website", v)} />
-      <Field label="LinkedIn" value={p.linkedin} onChange={(v) => set("linkedin", v)} />
-    </fieldset>
-  );
-}
-
-function TextAreaSection({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="mb-6">
-      <h3 className="mb-2 text-sm font-semibold">{label}</h3>
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        rows={4}
-        className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm text-black"
-      />
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+      <FloatingField id="fullName" label="Full name" value={p.fullName} onChange={(v) => set("fullName", v)} />
+      <FloatingField id="headline" label="Headline" value={p.headline} onChange={(v) => set("headline", v)} />
+      <FloatingField id="email" label="Email" value={p.email} onChange={(v) => set("email", v)} />
+      <FloatingField id="phone" label="Phone" value={p.phone} onChange={(v) => set("phone", v)} />
+      <FloatingField id="location" label="Location" value={p.location} onChange={(v) => set("location", v)} />
+      <FloatingField id="website" label="Website" value={p.website} onChange={(v) => set("website", v)} />
+      <FloatingField id="linkedin" label="LinkedIn" value={p.linkedin} onChange={(v) => set("linkedin", v)} />
     </div>
   );
 }
@@ -224,19 +367,15 @@ function TagListSection({
   }
 
   return (
-    <div className="mb-6">
-      <h3 className="mb-2 text-sm font-semibold">{label}</h3>
+    <div>
       <div className="mb-2 flex flex-wrap gap-2">
         {items.map((item, i) => (
           <span
             key={`${item}-${i}`}
-            className="flex items-center gap-1 rounded-full bg-gray-100 px-3 py-1 text-xs"
+            className="flex items-center gap-1 rounded-full bg-primary-light px-3 py-1 text-xs font-medium text-primary"
           >
             {item}
-            <button
-              onClick={() => onChange(items.filter((_, idx) => idx !== i))}
-              className="text-gray-400 hover:text-red-500"
-            >
+            <button onClick={() => onChange(items.filter((_, idx) => idx !== i))} className="text-primary/50 hover:text-red-500">
               ×
             </button>
           </span>
@@ -248,12 +387,9 @@ function TagListSection({
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), add())}
           placeholder={`Add ${label.toLowerCase()}`}
-          className="flex-1 rounded-md border border-gray-300 px-2 py-1.5 text-sm text-black"
+          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
-        <button
-          onClick={add}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
-        >
+        <button onClick={add} className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
           Add
         </button>
       </div>
@@ -294,32 +430,32 @@ function ExperienceSection({
   }
 
   return (
-    <div className="mb-6">
-      <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Experience</h3>
-        <button onClick={addItem} className="text-xs font-medium text-[#464feb]">
-          + Add
-        </button>
-      </div>
+    <div className="space-y-3">
       {content.experience.map((exp) => (
-        <div key={exp.id} className="mb-3 rounded-md border border-gray-200 p-3">
-          <div className="grid grid-cols-2 gap-2">
-            <Field label="Role" value={exp.role} onChange={(v) => update(exp.id, { role: v })} />
-            <Field label="Company" value={exp.company} onChange={(v) => update(exp.id, { company: v })} />
-            <Field label="Location" value={exp.location} onChange={(v) => update(exp.id, { location: v })} />
-            <Field label="Start date" value={exp.startDate} onChange={(v) => update(exp.id, { startDate: v })} />
-            <Field label="End date" value={exp.endDate} onChange={(v) => update(exp.id, { endDate: v })} />
+        <div key={exp.id} className="rounded-lg border border-gray-200 p-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FloatingField id={`role-${exp.id}`} label="Role" value={exp.role} onChange={(v) => update(exp.id, { role: v })} />
+            <FloatingField id={`company-${exp.id}`} label="Company" value={exp.company} onChange={(v) => update(exp.id, { company: v })} />
+            <FloatingField id={`loc-${exp.id}`} label="Location" value={exp.location} onChange={(v) => update(exp.id, { location: v })} />
+            <FloatingField id={`start-${exp.id}`} label="Start date" value={exp.startDate} onChange={(v) => update(exp.id, { startDate: v })} />
+            <FloatingField id={`end-${exp.id}`} label="End date" value={exp.endDate} onChange={(v) => update(exp.id, { endDate: v })} />
           </div>
-          <TextAreaSection
-            label="Description"
-            value={exp.description}
-            onChange={(v) => update(exp.id, { description: v })}
-          />
-          <button onClick={() => remove(exp.id)} className="text-xs text-red-500">
+          <div className="mt-3">
+            <FloatingTextArea
+              id={`desc-${exp.id}`}
+              label="Description"
+              value={exp.description}
+              onChange={(v) => update(exp.id, { description: v })}
+            />
+          </div>
+          <button onClick={() => remove(exp.id)} className="mt-2 text-xs font-medium text-red-500 hover:text-red-600">
             Remove
           </button>
         </div>
       ))}
+      <button onClick={addItem} className="w-full rounded-lg border border-dashed border-gray-300 py-2 text-xs font-medium text-primary hover:bg-primary-light">
+        + Add Experience
+      </button>
     </div>
   );
 }
@@ -356,27 +492,24 @@ function EducationSection({
   }
 
   return (
-    <div className="mb-6">
-      <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Education</h3>
-        <button onClick={addItem} className="text-xs font-medium text-[#464feb]">
-          + Add
-        </button>
-      </div>
+    <div className="space-y-3">
       {content.education.map((edu) => (
-        <div key={edu.id} className="mb-3 rounded-md border border-gray-200 p-3">
-          <div className="grid grid-cols-2 gap-2">
-            <Field label="School" value={edu.school} onChange={(v) => update(edu.id, { school: v })} />
-            <Field label="Degree" value={edu.degree} onChange={(v) => update(edu.id, { degree: v })} />
-            <Field label="Field" value={edu.field} onChange={(v) => update(edu.id, { field: v })} />
-            <Field label="Start date" value={edu.startDate} onChange={(v) => update(edu.id, { startDate: v })} />
-            <Field label="End date" value={edu.endDate} onChange={(v) => update(edu.id, { endDate: v })} />
+        <div key={edu.id} className="rounded-lg border border-gray-200 p-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FloatingField id={`school-${edu.id}`} label="School" value={edu.school} onChange={(v) => update(edu.id, { school: v })} />
+            <FloatingField id={`degree-${edu.id}`} label="Degree" value={edu.degree} onChange={(v) => update(edu.id, { degree: v })} />
+            <FloatingField id={`field-${edu.id}`} label="Field" value={edu.field} onChange={(v) => update(edu.id, { field: v })} />
+            <FloatingField id={`edu-start-${edu.id}`} label="Start date" value={edu.startDate} onChange={(v) => update(edu.id, { startDate: v })} />
+            <FloatingField id={`edu-end-${edu.id}`} label="End date" value={edu.endDate} onChange={(v) => update(edu.id, { endDate: v })} />
           </div>
-          <button onClick={() => remove(edu.id)} className="text-xs text-red-500">
+          <button onClick={() => remove(edu.id)} className="mt-2 text-xs font-medium text-red-500 hover:text-red-600">
             Remove
           </button>
         </div>
       ))}
+      <button onClick={addItem} className="w-full rounded-lg border border-dashed border-gray-300 py-2 text-xs font-medium text-primary hover:bg-primary-light">
+        + Add Education
+      </button>
     </div>
   );
 }
@@ -405,29 +538,29 @@ function ProjectsSection({
   }
 
   return (
-    <div className="mb-6">
-      <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Projects</h3>
-        <button onClick={addItem} className="text-xs font-medium text-[#464feb]">
-          + Add
-        </button>
-      </div>
+    <div className="space-y-3">
       {content.projects.map((proj) => (
-        <div key={proj.id} className="mb-3 rounded-md border border-gray-200 p-3">
-          <div className="grid grid-cols-2 gap-2">
-            <Field label="Name" value={proj.name} onChange={(v) => update(proj.id, { name: v })} />
-            <Field label="Link" value={proj.link} onChange={(v) => update(proj.id, { link: v })} />
+        <div key={proj.id} className="rounded-lg border border-gray-200 p-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <FloatingField id={`proj-name-${proj.id}`} label="Name" value={proj.name} onChange={(v) => update(proj.id, { name: v })} />
+            <FloatingField id={`proj-link-${proj.id}`} label="Link" value={proj.link} onChange={(v) => update(proj.id, { link: v })} />
           </div>
-          <TextAreaSection
-            label="Description"
-            value={proj.description}
-            onChange={(v) => update(proj.id, { description: v })}
-          />
-          <button onClick={() => remove(proj.id)} className="text-xs text-red-500">
+          <div className="mt-3">
+            <FloatingTextArea
+              id={`proj-desc-${proj.id}`}
+              label="Description"
+              value={proj.description}
+              onChange={(v) => update(proj.id, { description: v })}
+            />
+          </div>
+          <button onClick={() => remove(proj.id)} className="mt-2 text-xs font-medium text-red-500 hover:text-red-600">
             Remove
           </button>
         </div>
       ))}
+      <button onClick={addItem} className="w-full rounded-lg border border-dashed border-gray-300 py-2 text-xs font-medium text-primary hover:bg-primary-light">
+        + Add Project
+      </button>
     </div>
   );
 }

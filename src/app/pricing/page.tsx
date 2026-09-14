@@ -55,7 +55,7 @@ export default function PricingPage() {
             className="relative rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
           >
             {plan.badge && (
-              <span className="absolute -top-3 right-4 rounded-full bg-[#464feb] px-3 py-1 text-xs font-medium text-white">
+              <span className="absolute -top-3 right-4 rounded-full bg-[#2563eb] px-3 py-1 text-xs font-medium text-white">
                 {plan.badge}
               </span>
             )}
@@ -68,7 +68,7 @@ export default function PricingPage() {
                 <li key={f}>✅ {f}</li>
               ))}
             </ul>
-            <button className="mt-6 w-full rounded-md bg-[#464feb] px-4 py-2 text-sm font-medium text-white hover:bg-[#3841c9]">
+            <button className="mt-6 w-full rounded-md bg-[#2563eb] px-4 py-2 text-sm font-medium text-white hover:bg-[#1d4ed8]">
               {plan.name === "Free" ? "Get Started" : "Subscribe Now"}
             </button>
           </div>

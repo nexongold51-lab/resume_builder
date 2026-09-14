@@ -8,13 +8,16 @@ export async function NavBar() {
     <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2 font-semibold text-gray-900">
-          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-[#464feb] to-violet-600 text-sm font-bold text-white shadow-sm">
+          <span className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-[#2563eb] to-violet-600 text-sm font-bold text-white shadow-sm">
             R
           </span>
           ResumePro AI
         </Link>
 
         <nav className="flex items-center gap-5 text-sm">
+          <Link href="/#templates" className="hidden text-gray-600 hover:text-gray-900 sm:block">
+            Templates
+          </Link>
           <Link href="/pricing" className="text-gray-600 hover:text-gray-900">
             Pricing
           </Link>
@@ -22,6 +25,12 @@ export async function NavBar() {
             <>
               <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">
                 Dashboard
+              </Link>
+              <Link
+                href="/pricing"
+                className="hidden items-center gap-1 rounded-full bg-primary-light px-3 py-1 text-xs font-semibold text-primary sm:flex"
+              >
+                ⚡ Upgrade
               </Link>
               <form
                 action={async () => {
@@ -39,7 +48,7 @@ export async function NavBar() {
               </Link>
               <Link
                 href="/signup"
-                className="rounded-md bg-gradient-to-r from-[#464feb] to-violet-600 px-3.5 py-1.5 font-medium text-white shadow-sm transition hover:shadow-md"
+                className="rounded-md bg-gradient-to-r from-[#2563eb] to-violet-600 px-3.5 py-1.5 font-medium text-white shadow-sm transition hover:shadow-md"
               >
                 Get Started
               </Link>

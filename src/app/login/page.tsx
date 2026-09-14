@@ -42,6 +42,7 @@ function LoginForm() {
     }
 
     router.push(callbackUrl);
+    router.refresh();
   }
 
   return (
@@ -87,7 +88,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-[#464feb] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+          className="rounded-md bg-[#2563eb] px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
         >
           {loading ? "Logging in..." : "Log in"}
         </button>
@@ -95,7 +96,7 @@ function LoginForm() {
 
       <p className="text-center text-sm text-gray-500">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-[#464feb]">
+        <Link href="/signup" className="text-[#2563eb]">
           Sign up
         </Link>
       </p>

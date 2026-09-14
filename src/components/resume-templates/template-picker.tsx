@@ -38,7 +38,7 @@ export function TemplatePicker({
               onClick={() => setActiveCategory(cat)}
               className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium ${
                 activeCategory === cat
-                  ? "bg-[#464feb] text-white"
+                  ? "bg-[#2563eb] text-white"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
@@ -53,7 +53,7 @@ export function TemplatePicker({
               key={template.id}
               onClick={() => onSelect(template)}
               className={`overflow-hidden rounded-lg border-2 text-left transition ${
-                selectedId === template.id ? "border-[#464feb]" : "border-gray-200 hover:border-gray-300"
+                selectedId === template.id ? "border-[#2563eb]" : "border-gray-200 hover:border-gray-300"
               }`}
             >
               <div className="flex h-20 flex-col justify-between p-2" style={{ backgroundColor: `${template.accent}14` }}>

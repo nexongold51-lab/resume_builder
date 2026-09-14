@@ -20,7 +20,7 @@ const CATEGORY_VARIANTS: { category: TemplateCategoryId; variant: TemplateVarian
 
 // 10 accent colors per category => 50 templates total, matching the "50 unique templates" spec.
 const ACCENT_COLORS = [
-  "#464feb", // indigo
+  "#2563eb", // indigo
   "#2563eb", // blue
   "#0d9488", // teal
   "#059669", // emerald

@@ -10,6 +10,12 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-primary: #2563eb;
+  --color-primary-dark: #1d4ed8;
+  --color-primary-light: #dbeafe;
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-surface: #f8fafc;
 }
 
 html {
@@ -22,7 +28,7 @@ body {
 }
 
 ::selection {
-  background-color: #464feb;
+  background-color: #2563eb;
   color: #ffffff;
 }
 
@@ -31,7 +37,7 @@ a, button {
 }
 
 *:focus-visible {
-  outline: 2px solid #464feb;
+  outline: 2px solid #2563eb;
   outline-offset: 2px;
 }
 
@@ -54,8 +60,38 @@ a, button {
 }
 
 .gradient-text {
-  background-image: linear-gradient(90deg, #464feb, #7c3aed);
+  background-image: linear-gradient(90deg, #2563eb, #7c3aed);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.skeleton {
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+  background-color: #e5e7eb;
+  border-radius: 6px;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-toast-in {
+  animation: toast-in 200ms ease-out;
+}
+
+@keyframes accordion-down {
+  from { opacity: 0; max-height: 0; }
+  to { opacity: 1; max-height: 2000px; }
+}
+
+.animate-accordion {
+  animation: accordion-down 260ms ease-out;
+  overflow: hidden;
 }

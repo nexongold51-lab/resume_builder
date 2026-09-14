@@ -7,7 +7,7 @@ export function Footer() {
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div className="col-span-2 sm:col-span-1">
             <div className="flex items-center gap-2 font-semibold text-gray-900">
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#464feb] text-xs font-bold text-white">
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#2563eb] text-xs font-bold text-white">
                 R
               </span>
               ResumePro AI
