@@ -21,9 +21,6 @@ export async function NavBar() {
           <Link href="/#features" className="hidden text-gray-600 hover:text-gray-900 md:block">
             Features
           </Link>
-          <Link href="/#success-stories" className="hidden text-gray-600 hover:text-gray-900 md:block">
-            Success Stories
-          </Link>
           <Link href="/pricing" className="text-gray-600 hover:text-gray-900">
             Pricing
           </Link>
@@ -31,12 +28,6 @@ export async function NavBar() {
             <>
               <Link href="/dashboard" className="text-gray-600 hover:text-gray-900">
                 Dashboard
-              </Link>
-              <Link
-                href="/pricing"
-                className="hidden items-center gap-1 rounded-full bg-primary-light px-3 py-1 text-xs font-semibold text-primary sm:flex"
-              >
-                ⚡ Upgrade
               </Link>
               <form
                 action={async () => {

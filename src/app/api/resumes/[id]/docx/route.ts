@@ -24,6 +24,10 @@ export async function GET(
   const isPremium = await hasActiveSubscription(session.user.id);
   const buffer = await buildResumeDocx(content, isPremium);
 
+  await prisma.download.create({
+    data: { userId: session.user.id, resumeId: resume.id, format: "DOCX" },
+  });
+
   return new NextResponse(new Uint8Array(buffer), {
     headers: {
       "Content-Type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",

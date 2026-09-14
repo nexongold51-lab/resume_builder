@@ -8,7 +8,6 @@ import {
   ShieldCheck,
   Sparkles,
   Star,
-  FileEdit,
 } from "lucide-react";
 import { TemplateThumbnail } from "@/components/resume-templates/template-thumbnail";
 import { TemplateGallery } from "@/components/template-gallery";
@@ -46,13 +45,6 @@ const FEATURES = [
     title: "No Paid Cloud Lock-In",
     description: "Your data lives in your own database — no mandatory paid cloud services required to run the app.",
   },
-];
-
-const STATS = [
-  { label: "Templates", value: "50" },
-  { label: "Design Categories", value: "5" },
-  { label: "Accent Colors", value: "10" },
-  { label: "Cost to Build a Resume", value: "$0" },
 ];
 
 const STEPS = [
@@ -130,15 +122,6 @@ export default function Home() {
               <span>Trusted by professionals worldwide</span>
             </div>
             <p className="mt-1 text-[10px] text-zinc-400">*Illustrative figure for demonstration purposes.</p>
-
-            <dl className="mt-12 grid grid-cols-2 gap-6 sm:grid-cols-4">
-              {STATS.map((stat) => (
-                <div key={stat.label}>
-                  <dt className="gradient-text text-2xl font-bold">{stat.value}</dt>
-                  <dd className="text-xs text-zinc-500">{stat.label}</dd>
-                </div>
-              ))}
-            </dl>
           </div>
 
           <div className="perspective-1000 relative mx-auto">
@@ -204,36 +187,6 @@ export default function Home() {
               <p className="mt-2 text-sm text-zinc-600">{feature.description}</p>
             </div>
           ))}
-        </div>
-      </div>
-
-      {/* Dashboard preview mockup */}
-      <div className="border-t border-gray-200 bg-white px-6 py-16">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-2xl font-semibold text-zinc-900">Manage every resume in one dashboard</h2>
-          <p className="mt-2 text-sm text-zinc-600">Track completion, ATS score, and templates at a glance.</p>
-          <div className="mt-8 rounded-xl border border-gray-200 bg-zinc-50 p-4 text-left shadow-xl">
-            <div className="mb-3 flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-red-400" />
-              <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
-              <span className="ml-2 flex items-center gap-1 text-xs text-zinc-400">
-                <FileEdit className="h-3 w-3" /> Your Resumes
-              </span>
-            </div>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              {SHOWCASE.slice(0, 3).map((t, i) => (
-                <div key={t.variant} className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-                  <div className="h-1.5" style={{ backgroundColor: t.accent }} />
-                  <div className="p-3">
-                    <div className="h-2 w-2/3 rounded bg-gray-200" />
-                    <div className="mt-2 h-1.5 w-1/2 rounded bg-gray-100" />
-                    <div className="mt-3 text-[10px] font-medium text-primary">ATS Score: {88 + i * 4}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </div>
 

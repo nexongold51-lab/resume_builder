@@ -17,6 +17,9 @@ import {
   Download,
   FileDown,
   ClipboardCheck,
+  Target,
+  Mail,
+  History,
   Share2,
   ZoomIn,
   ZoomOut,
@@ -32,6 +35,10 @@ import { AccordionSection } from "@/components/builder/accordion-section";
 import { SectionNav, type SectionNavItem } from "@/components/builder/section-nav";
 import { ResumeScoreCard } from "@/components/builder/resume-score-card";
 import { AtsReportModal } from "@/components/builder/ats-report-modal";
+import { JobMatchModal } from "@/components/builder/job-match-modal";
+import { CoverLetterModal } from "@/components/builder/cover-letter-modal";
+import { VersionHistoryModal } from "@/components/builder/version-history-modal";
+import { resumeContentSchema } from "@/types/resume";
 import { computeResumeScore } from "@/lib/resume-score";
 import { generateSummary, rewriteExperience, keywordSuggestions } from "@/lib/ai-helpers";
 
@@ -57,6 +64,9 @@ export function BuilderClient({
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [zoom, setZoom] = useState(0.42);
   const [reportOpen, setReportOpen] = useState(false);
+  const [jobMatchOpen, setJobMatchOpen] = useState(false);
+  const [coverLetterOpen, setCoverLetterOpen] = useState(false);
+  const [versionsOpen, setVersionsOpen] = useState(false);
   const [shareStatus, setShareStatus] = useState<"idle" | "sharing" | "copied">("idle");
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -90,6 +100,13 @@ export function BuilderClient({
 
   function addSkill(skill: string) {
     update({ ...content, skills: [...content.skills, skill] });
+  }
+
+  function restoreVersion(rawContent: unknown) {
+    const parsed = resumeContentSchema.safeParse(rawContent);
+    if (parsed.success) {
+      update(parsed.data);
+    }
   }
 
   async function shareResume() {
@@ -169,6 +186,27 @@ export function BuilderClient({
             >
               <ClipboardCheck className="h-3.5 w-3.5" />
               ATS Report
+            </button>
+            <button
+              onClick={() => setJobMatchOpen(true)}
+              className="hidden items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 sm:flex"
+            >
+              <Target className="h-3.5 w-3.5" />
+              Job Match
+            </button>
+            <button
+              onClick={() => setCoverLetterOpen(true)}
+              className="hidden items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 sm:flex"
+            >
+              <Mail className="h-3.5 w-3.5" />
+              Cover Letter
+            </button>
+            <button
+              onClick={() => setVersionsOpen(true)}
+              className="hidden items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 sm:flex"
+            >
+              <History className="h-3.5 w-3.5" />
+              History
             </button>
             <button
               onClick={shareResume}
@@ -328,6 +366,11 @@ export function BuilderClient({
         <TemplatePicker selectedId={template.id} onSelect={selectTemplate} onClose={() => setPickerOpen(false)} />
       )}
       {reportOpen && <AtsReportModal result={score} onClose={() => setReportOpen(false)} />}
+      {jobMatchOpen && <JobMatchModal content={content} onClose={() => setJobMatchOpen(false)} />}
+      {coverLetterOpen && <CoverLetterModal content={content} onClose={() => setCoverLetterOpen(false)} />}
+      {versionsOpen && (
+        <VersionHistoryModal resumeId={resumeId} onClose={() => setVersionsOpen(false)} onRestore={restoreVersion} />
+      )}
     </div>
   );
 }

@@ -31,6 +31,10 @@ export default async function ResumePrintPage({
   const template = getTemplateById(resume.templateId);
   const isPremium = await hasActiveSubscription(session.user.id);
 
+  await prisma.download.create({
+    data: { userId: session.user.id, resumeId: resume.id, format: "PDF" },
+  });
+
   return (
     <div className="print:m-0">
       <PrintTrigger />
