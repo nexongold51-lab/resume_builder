@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------- Auth (NextAuth v5 / Auth.js Prisma adapter) ----------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String? // set when user signs up with email/password
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  resumes       Resume[]
+  subscriptions Subscription[]
+  payments      Payment[]
+  downloads     Download[]
+  aiRequests    AiRequest[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------- Resumes ----------
+
+model Resume {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("Untitled Resume")
+  templateId String?
+  content   Json // structured resume sections (personal info, experience, education, etc.)
+  atsScore  Int?
+  isPublic  Boolean  @default(false)
+  shareSlug String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template  Template? @relation(fields: [templateId], references: [id])
+  downloads Download[]
+
+  @@index([userId])
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  name        String
+  category    TemplateCategory
+  isPremium   Boolean  @default(false)
+  previewUrl  String?
+  layout      Json // template layout/config used by the renderer
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  resumes Resume[]
+}
+
+enum TemplateCategory {
+  PROFESSIONAL
+  MODERN
+  EXECUTIVE
+  CREATIVE
+  MINIMAL_ATS
+}
+
+// ---------- Billing ----------
+
+model Subscription {
+  id        String             @id @default(cuid())
+  userId    String
+  plan      SubscriptionPlan
+  status    SubscriptionStatus @default(ACTIVE)
+  startedAt DateTime           @default(now())
+  expiresAt DateTime
+  provider  PaymentProvider
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments Payment[]
+
+  @@index([userId])
+}
+
+enum SubscriptionPlan {
+  MONTHLY
+  QUARTERLY
+  HALF_YEARLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  userId         String
+  subscriptionId String?
+  provider       PaymentProvider
+  providerRefId  String // razorpay payment id / stripe payment intent id
+  amount         Int // stored in smallest currency unit (paise/cents)
+  currency       String        @default("INR")
+  status         PaymentStatus @default(PENDING)
+  invoiceUrl     String?
+  createdAt      DateTime      @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  @@index([userId])
+}
+
+enum PaymentProvider {
+  RAZORPAY
+  STRIPE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+// ---------- Usage tracking ----------
+
+model Download {
+  id        String       @id @default(cuid())
+  userId    String
+  resumeId  String
+  format    DownloadFormat
+  createdAt DateTime     @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([resumeId])
+}
+
+enum DownloadFormat {
+  PDF
+  DOCX
+  HTML
+}
+
+model AiRequest {
+  id          String   @id @default(cuid())
+  userId      String
+  feature     AiFeature
+  tokensUsed  Int      @default(0)
+  costUsd     Decimal  @default(0) @db.Decimal(10, 4)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+enum AiFeature {
+  RESUME_WRITER
+  ATS_SCANNER
+  OPTIMIZATION_SUGGESTIONS
+  COVER_LETTER
+}
