@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { resumeContentSchema } from "@/types/resume";
+import { TEMPLATES } from "@/components/resume-templates/registry";
 
 export async function GET(
   _request: Request,
@@ -42,6 +43,10 @@ export async function PUT(
   }
 
   const title = typeof body?.title === "string" && body.title.trim() ? body.title.trim() : undefined;
+  const templateId =
+    typeof body?.templateId === "string" && TEMPLATES.some((t) => t.id === body.templateId)
+      ? body.templateId
+      : undefined;
 
   const existing = await prisma.resume.findFirst({
     where: { id, userId: session.user.id },
@@ -56,6 +61,7 @@ export async function PUT(
     data: {
       content: contentResult.data,
       ...(title ? { title } : {}),
+      ...(templateId ? { templateId } : {}),
     },
   });
 

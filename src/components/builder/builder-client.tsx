@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { ResumeContent, ExperienceItem, EducationItem, ProjectItem } from "@/types/resume";
-import { MinimalAtsTemplate } from "@/components/resume-templates/minimal-ats";
+import { ResumeTemplate } from "@/components/resume-templates/resume-template";
+import { TemplatePicker } from "@/components/resume-templates/template-picker";
+import { getTemplateById, type TemplateMeta } from "@/components/resume-templates/registry";
 
 function uid() {
   return Math.random().toString(36).slice(2, 10);
@@ -13,24 +15,28 @@ export function BuilderClient({
   resumeId,
   title,
   initialContent,
+  initialTemplateId,
 }: {
   resumeId: string;
   title: string;
   initialContent: ResumeContent;
+  initialTemplateId: string | null;
 }) {
   const [content, setContent] = useState<ResumeContent>(initialContent);
+  const [template, setTemplate] = useState<TemplateMeta>(getTemplateById(initialTemplateId));
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const scheduleSave = useCallback(
-    (next: ResumeContent) => {
+    (next: ResumeContent, templateId: string) => {
       if (saveTimeout.current) clearTimeout(saveTimeout.current);
       saveTimeout.current = setTimeout(async () => {
         setSaving(true);
         await fetch(`/api/resumes/${resumeId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: next }),
+          body: JSON.stringify({ content: next, templateId }),
         });
         setSaving(false);
       }, 800);
@@ -40,7 +46,13 @@ export function BuilderClient({
 
   function update(next: ResumeContent) {
     setContent(next);
-    scheduleSave(next);
+    scheduleSave(next, template.id);
+  }
+
+  function selectTemplate(next: TemplateMeta) {
+    setTemplate(next);
+    setPickerOpen(false);
+    scheduleSave(content, next.id);
   }
 
   useEffect(() => {
@@ -59,7 +71,15 @@ export function BuilderClient({
           <span className="text-xs text-gray-400">{saving ? "Saving..." : "Saved"}</span>
         </div>
 
-        <h1 className="mb-4 text-lg font-semibold">{title}</h1>
+        <div className="mb-4 flex items-center justify-between">
+          <h1 className="text-lg font-semibold">{title}</h1>
+          <button
+            onClick={() => setPickerOpen(true)}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-xs font-medium hover:bg-gray-50"
+          >
+            Template: {template.name}
+          </button>
+        </div>
 
         <PersonalInfoForm content={content} onChange={update} />
         <TextAreaSection
@@ -97,10 +117,18 @@ export function BuilderClient({
       </div>
 
       <div className="lg:sticky lg:top-6 lg:self-start">
-        <div className="rounded-lg border border-gray-200 shadow-sm">
-          <MinimalAtsTemplate content={content} />
+        <div className="overflow-hidden rounded-lg border border-gray-200 shadow-sm">
+          <ResumeTemplate content={content} variant={template.variant} accent={template.accent} />
         </div>
       </div>
+
+      {pickerOpen && (
+        <TemplatePicker
+          selectedId={template.id}
+          onSelect={selectTemplate}
+          onClose={() => setPickerOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -76,7 +76,7 @@ model Resume {
   id        String   @id @default(cuid())
   userId    String
   title     String   @default("Untitled Resume")
-  templateId String?
+  templateId String? // references a template id from the code-based registry (src/components/resume-templates/registry.ts), not a DB row
   content   Json // structured resume sections (personal info, experience, education, etc.)
   atsScore  Int?
   isPublic  Boolean  @default(false)
@@ -85,7 +85,6 @@ model Resume {
   updatedAt DateTime @updatedAt
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  template  Template? @relation(fields: [templateId], references: [id])
   downloads Download[]
 
   @@index([userId])
@@ -100,9 +99,8 @@ model Template {
   layout      Json // template layout/config used by the renderer
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  resumes Resume[]
 }
+
 
 enum TemplateCategory {
   PROFESSIONAL

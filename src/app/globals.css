@@ -12,15 +12,50 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+::selection {
+  background-color: #464feb;
+  color: #ffffff;
+}
+
+a, button {
+  transition: color 150ms ease, background-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+*:focus-visible {
+  outline: 2px solid #464feb;
+  outline-offset: 2px;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-16px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float 6s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.gradient-text {
+  background-image: linear-gradient(90deg, #464feb, #7c3aed);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }

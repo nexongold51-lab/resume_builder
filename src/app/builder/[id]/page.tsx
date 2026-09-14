@@ -26,6 +26,11 @@ export default async function BuilderPage({
   const content = resumeContentSchema.parse(resume.content);
 
   return (
-    <BuilderClient resumeId={resume.id} title={resume.title} initialContent={content} />
+    <BuilderClient
+      resumeId={resume.id}
+      title={resume.title}
+      initialContent={content}
+      initialTemplateId={resume.templateId}
+    />
   );
 }

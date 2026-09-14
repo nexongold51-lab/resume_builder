@@ -1,33 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ResumePro AI — Resume Builder
 
-## Getting Started
+Create Professional ATS-Friendly Resumes That Get Interviews.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · Prisma 7 · NextAuth v5 (beta) · PostgreSQL
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local Development (without Docker)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Install dependencies: `npm install`
+2. Start Postgres locally and create a database (see `scripts/setup-postgres.sh` for a reference setup).
+3. Copy `.env.example` to `.env` and fill in `DATABASE_URL` / `AUTH_SECRET` (generate with `openssl rand -base64 32`).
+4. Push the schema: `npx prisma db push`
+5. Run the app: `npm run dev` — open http://localhost:3000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Running with Docker
 
-## Learn More
+This spins up the app **and** a PostgreSQL database in containers — no local Postgres install needed.
 
-To learn more about Next.js, take a look at the following resources:
+1. Copy the env template and fill in secrets:
+   ```bash
+   cp .env.docker.example .env
+   # edit .env: set AUTH_SECRET (openssl rand -base64 32), optionally Google OAuth creds
+   ```
+2. Build and start everything:
+   ```bash
+   docker compose up --build
+   ```
+3. Open http://localhost:3000
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The `app` container automatically runs `prisma db push` against the `db` container on startup, so the schema is always in sync. Data persists in the `db_data` Docker volume across restarts.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+To stop: `docker compose down` (add `-v` to also delete the database volume).
+
+## Project Structure
+
+- `src/app` — Next.js App Router pages and API routes
+- `src/components` — UI components (builder, dashboard, resume templates)
+- `src/auth.ts` — NextAuth configuration (Google OAuth + email/password credentials)
+- `src/proxy.ts` — Route protection (Next.js 16 renamed `middleware.ts` to `proxy.ts`)
+- `prisma/schema.prisma` — Database schema
+- `prisma.config.ts` — Prisma 7 CLI configuration (connection URL lives here, not in schema.prisma)
+
 
 ## Deploy on Vercel
 
