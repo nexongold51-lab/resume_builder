@@ -8,6 +8,7 @@ export const personalInfoSchema = z.object({
   location: z.string().default(""),
   website: z.string().default(""),
   linkedin: z.string().default(""),
+  photoUrl: z.string().default(""),
 });
 
 export const experienceItemSchema = z.object({
@@ -75,6 +76,7 @@ export function emptyResumeContent(): ResumeContent {
       location: "",
       website: "",
       linkedin: "",
+      photoUrl: "",
     },
     summary: "",
     skills: [],

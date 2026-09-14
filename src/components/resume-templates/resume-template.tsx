@@ -1,6 +1,22 @@
 import type { ResumeContent } from "@/types/resume";
 
-export type TemplateVariant = "classic" | "banner" | "centered" | "sidebar" | "minimal";
+export type TemplateVariant = "classic" | "banner" | "centered" | "sidebar" | "minimal" | "split";
+
+// Variants that reserve a dedicated slot for a profile photo (aside, banner medallion, or centered avatar).
+const PHOTO_SUPPORTED_VARIANTS: TemplateVariant[] = ["banner", "centered", "sidebar", "split"];
+
+export function variantSupportsPhoto(variant: TemplateVariant): boolean {
+  return PHOTO_SUPPORTED_VARIANTS.includes(variant);
+}
+
+function getInitials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
+}
 
 function SectionTitle({
   children,
@@ -16,6 +32,16 @@ function SectionTitle({
       <h2
         className="mb-2 text-center text-[11px] font-bold uppercase tracking-[0.2em]"
         style={{ color: accent }}
+      >
+        {children}
+      </h2>
+    );
+  }
+  if (variant === "split") {
+    return (
+      <h2
+        className="mb-2 border-l-[3px] pl-2 text-[11px] font-bold uppercase tracking-[0.15em] text-gray-800"
+        style={{ borderColor: accent }}
       >
         {children}
       </h2>
@@ -55,7 +81,16 @@ function ExperienceBlock({ content, variant, accent }: { content: ResumeContent;
     <section className="mb-3">
       <SectionTitle variant={variant} accent={accent}>Experience</SectionTitle>
       {content.experience.map((exp) => (
-        <div key={exp.id} className="mb-2.5">
+        <div
+          key={exp.id}
+          className={variant === "split" ? "relative mb-3 border-l-2 border-gray-200 pb-0.5 pl-4" : "mb-2.5"}
+        >
+          {variant === "split" && (
+            <span
+              className="absolute -left-[5px] top-1 h-2 w-2 rounded-full"
+              style={{ backgroundColor: accent }}
+            />
+          )}
           <div className="flex items-baseline justify-between gap-2">
             <p className="font-semibold text-gray-900">
               {exp.role} {exp.company && <span className="font-normal text-gray-700">— {exp.company}</span>}
@@ -187,6 +222,31 @@ export function ResumeTemplate({
 }) {
   const { personalInfo: p } = content;
 
+  if (variant === "split") {
+    return (
+      <div className="mx-auto grid max-w-[8.5in] grid-cols-[2.6in_1fr] bg-white text-[12.5px] leading-relaxed text-black">
+        <aside className="p-6 text-white" style={{ backgroundColor: accent }}>
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white/15 text-lg font-bold">
+            {getInitials(p.fullName || "Your Name")}
+          </div>
+          <h1 className="text-xl font-bold">{p.fullName || "Your Name"}</h1>
+          {p.headline && <p className="mt-0.5 text-sm text-white/85">{p.headline}</p>}
+          <div className="mt-4 space-y-0.5 text-[11px] text-white/80">
+            {[p.email, p.phone, p.location, p.website, p.linkedin].filter(Boolean).map((line) => (
+              <p key={line}>{line}</p>
+            ))}
+          </div>
+          <div className="mt-5 [&_h2]:border-white/30 [&_h2]:text-white [&_p]:text-white/85 [&_span]:!text-white">
+            <SideSections content={content} variant={variant} accent="#ffffff" />
+          </div>
+        </aside>
+        <main className="p-7">
+          <MainSections content={content} variant={variant} accent={accent} />
+        </main>
+      </div>
+    );
+  }
+
   if (variant === "sidebar") {
     return (
       <div className="mx-auto grid max-w-[8.5in] grid-cols-[2.4in_1fr] bg-white text-[12.5px] leading-relaxed text-black">
@@ -212,33 +272,63 @@ export function ResumeTemplate({
   return (
     <div className="mx-auto max-w-[8.5in] bg-white text-[12.5px] leading-relaxed text-black">
       {variant === "banner" && (
-        <header className="p-8 pb-6" style={{ backgroundColor: accent }}>
-          <h1 className="text-2xl font-bold text-white">{p.fullName || "Your Name"}</h1>
-          {p.headline && <p className="text-sm text-white/90">{p.headline}</p>}
-          <div className="mt-1">
-            <ContactLine content={content} variant={variant} />
+        <header
+          className="flex items-center justify-between gap-4 p-8 pb-6"
+          style={{ backgroundColor: accent }}
+        >
+          <div>
+            <h1 className="text-2xl font-bold text-white">{p.fullName || "Your Name"}</h1>
+            {p.headline && <p className="text-sm text-white/90">{p.headline}</p>}
+            <div className="mt-1">
+              <ContactLine content={content} variant={variant} />
+            </div>
+          </div>
+          <div
+            aria-hidden="true"
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white/15 text-lg font-bold text-white"
+          >
+            {getInitials(p.fullName || "Your Name")}
           </div>
         </header>
       )}
 
       {variant === "centered" && (
-        <header className="border-b-2 p-8 pb-4 text-center" style={{ borderColor: accent }}>
-          <h1 className="text-2xl font-bold tracking-wide text-gray-900">{p.fullName || "Your Name"}</h1>
-          {p.headline && <p className="text-sm text-gray-600">{p.headline}</p>}
-          <div className="mt-1">
+        <header className="px-8 pt-8 pb-5 text-center">
+          <div className="mx-auto mb-3 h-px w-16" style={{ backgroundColor: accent }} />
+          <h1 className="text-[26px] font-semibold uppercase tracking-[0.28em] text-gray-900">
+            {p.fullName || "Your Name"}
+          </h1>
+          {p.headline && (
+            <p className="mt-1 text-sm italic text-gray-600">{p.headline}</p>
+          )}
+          <div className="mt-2">
             <ContactLine content={content} variant={variant} />
+          </div>
+          <div className="mx-auto mt-4 h-px w-16" style={{ backgroundColor: accent }} />
+        </header>
+      )}
+
+      {variant === "classic" && (
+        <header className="flex items-stretch gap-4 border-b border-gray-200 p-8 pb-5">
+          <span aria-hidden="true" className="w-1 rounded-full" style={{ backgroundColor: accent }} />
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{p.fullName || "Your Name"}</h1>
+            {p.headline && (
+              <p className="text-sm font-medium" style={{ color: accent }}>
+                {p.headline}
+              </p>
+            )}
+            <div className="mt-1">
+              <ContactLine content={content} variant={variant} />
+            </div>
           </div>
         </header>
       )}
 
-      {(variant === "classic" || variant === "minimal") && (
-        <header className="p-8 pb-4" style={{ borderBottom: `2px solid ${variant === "minimal" ? "#000" : accent}` }}>
-          <h1 className="text-2xl font-bold text-gray-900">{p.fullName || "Your Name"}</h1>
-          {p.headline && (
-            <p className="text-sm" style={{ color: variant === "minimal" ? "#374151" : accent }}>
-              {p.headline}
-            </p>
-          )}
+      {variant === "minimal" && (
+        <header className="border-b border-black p-8 pb-4">
+          <h1 className="text-2xl font-bold text-black">{p.fullName || "Your Name"}</h1>
+          {p.headline && <p className="text-sm text-gray-700">{p.headline}</p>}
           <div className="mt-1">
             <ContactLine content={content} variant={variant} />
           </div>

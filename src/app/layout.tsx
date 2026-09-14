@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { NavBar } from "@/components/nav-bar";
 import { Footer } from "@/components/footer";
+import { ChromeGuard } from "@/components/chrome-guard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,13 +46,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-zinc-50 font-sans overflow-x-hidden">
         <Providers>
-          <div className="print:hidden">
-            <NavBar />
-          </div>
+          <ChromeGuard>
+            <div className="print:hidden">
+              <NavBar />
+            </div>
+          </ChromeGuard>
           <div className="flex flex-1 flex-col">{children}</div>
-          <div className="print:hidden">
-            <Footer />
-          </div>
+          <ChromeGuard>
+            <div className="print:hidden">
+              <Footer />
+            </div>
+          </ChromeGuard>
         </Providers>
       </body>
     </html>

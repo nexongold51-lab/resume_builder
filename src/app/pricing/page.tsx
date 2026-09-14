@@ -14,6 +14,7 @@ import {
 import { FaqAccordion } from "@/components/faq-accordion";
 import { CheckoutButton } from "@/components/checkout-button";
 import { TemplateThumbnail } from "@/components/resume-templates/template-thumbnail";
+import { FEATURED_TEMPLATES } from "@/components/resume-templates/registry";
 
 const PLANS = [
   {
@@ -69,13 +70,6 @@ const COMPARISON = [
   { feature: "Watermark-free free tier", ours: "Optional upgrade", others: "Rarely available" },
 ];
 
-const SHOWCASE = [
-  { variant: "classic" as const, accent: "#2563eb" },
-  { variant: "banner" as const, accent: "#0d9488" },
-  { variant: "sidebar" as const, accent: "#e11d48" },
-  { variant: "centered" as const, accent: "#334155" },
-];
-
 export default function PricingPage() {
   return (
     <div className="flex flex-1 flex-col overflow-x-hidden">
@@ -118,11 +112,15 @@ export default function PricingPage() {
 
       {/* Template preview */}
       <div className="border-b border-gray-200 bg-zinc-50 px-4 py-14">
-        <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-xl font-semibold text-zinc-900">Premium templates included in every plan</h2>
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            {SHOWCASE.map((t) => (
-              <TemplateThumbnail key={t.variant} variant={t.variant} accent={t.accent} scale={0.24} heightPx={200} />
+        <div className="mx-auto max-w-5xl text-center">
+          <h2 className="text-xl font-semibold text-zinc-900">Five signature designs — each visually unique</h2>
+          <p className="mt-2 text-sm text-zinc-600">One layout per style, hand-picked color, ready to customize.</p>
+          <div className="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
+            {FEATURED_TEMPLATES.map((t) => (
+              <div key={t.id} className="flex flex-col items-center gap-2">
+                <TemplateThumbnail variant={t.variant} accent={t.accent} />
+                <p className="text-xs font-semibold text-zinc-800">{t.name}</p>
+              </div>
             ))}
           </div>
         </div>

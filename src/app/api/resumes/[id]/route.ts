@@ -90,3 +90,36 @@ export async function DELETE(
 
   return NextResponse.json({ success: true });
 }
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const body = await request.json().catch(() => null);
+  const title = typeof body?.title === "string" ? body.title.trim() : "";
+  if (!title || title.length > 120) {
+    return NextResponse.json({ error: "Title is required and must be under 120 characters." }, { status: 400 });
+  }
+
+  const existing = await prisma.resume.findFirst({
+    where: { id, userId: session.user.id },
+    select: { id: true },
+  });
+  if (!existing) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const resume = await prisma.resume.update({
+    where: { id },
+    data: { title },
+    select: { id: true, title: true, updatedAt: true },
+  });
+
+  return NextResponse.json({ resume });
+}

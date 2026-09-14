@@ -9,6 +9,7 @@ export const SAMPLE_RESUME: ResumeContent = {
     location: "San Francisco, CA",
     website: "alexmorgan.design",
     linkedin: "linkedin.com/in/alexmorgan",
+    photoUrl: "",
   },
   summary:
     "Product designer with 8+ years of experience building intuitive, accessible interfaces for consumer and B2B products.",

@@ -38,6 +38,7 @@ import { AtsReportModal } from "@/components/builder/ats-report-modal";
 import { JobMatchModal } from "@/components/builder/job-match-modal";
 import { CoverLetterModal } from "@/components/builder/cover-letter-modal";
 import { VersionHistoryModal } from "@/components/builder/version-history-modal";
+import { PhotoUpload } from "@/components/builder/photo-upload";
 import { resumeContentSchema } from "@/types/resume";
 import { computeResumeScore } from "@/lib/resume-score";
 import { generateSummary, rewriteExperience, keywordSuggestions } from "@/lib/ai-helpers";
@@ -62,13 +63,35 @@ export function BuilderClient({
   const [pickerOpen, setPickerOpen] = useState(false);
   const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
-  const [zoom, setZoom] = useState(0.42);
+  const [zoom, setZoom] = useState(0.55);
   const [reportOpen, setReportOpen] = useState(false);
   const [jobMatchOpen, setJobMatchOpen] = useState(false);
   const [coverLetterOpen, setCoverLetterOpen] = useState(false);
   const [versionsOpen, setVersionsOpen] = useState(false);
   const [shareStatus, setShareStatus] = useState<"idle" | "sharing" | "copied">("idle");
+  const [resumeTitle, setResumeTitle] = useState(title);
+  const [titleDraft, setTitleDraft] = useState(title);
+  const [editingTitle, setEditingTitle] = useState(false);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  async function commitTitle() {
+    const next = titleDraft.trim();
+    setEditingTitle(false);
+    if (!next || next === resumeTitle) {
+      setTitleDraft(resumeTitle);
+      return;
+    }
+    setResumeTitle(next);
+    try {
+      await fetch(`/api/resumes/${resumeId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title: next }),
+      });
+    } catch {
+      // Non-fatal: keep the local optimistic value; save will retry with next content change.
+    }
+  }
 
   const scheduleSave = useCallback(
     (next: ResumeContent, templateId: string) => {
@@ -169,7 +192,38 @@ export function BuilderClient({
             <Link href="/dashboard" className="flex shrink-0 items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <h1 className="truncate text-sm font-semibold text-gray-900 sm:text-base">{title}</h1>
+            {editingTitle ? (
+              <input
+                autoFocus
+                value={titleDraft}
+                onChange={(e) => setTitleDraft(e.target.value)}
+                onBlur={commitTitle}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    (e.target as HTMLInputElement).blur();
+                  } else if (e.key === "Escape") {
+                    setEditingTitle(false);
+                    setTitleDraft(resumeTitle);
+                  }
+                }}
+                maxLength={120}
+                aria-label="Resume title"
+                className="min-w-0 max-w-[16rem] truncate rounded-md border border-primary bg-white px-2 py-1 text-sm font-semibold text-gray-900 outline-none ring-2 ring-primary/20 sm:text-base"
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setTitleDraft(resumeTitle);
+                  setEditingTitle(true);
+                }}
+                title="Rename resume"
+                className="min-w-0 truncate rounded-md px-1 text-sm font-semibold text-gray-900 hover:bg-gray-100 sm:text-base"
+              >
+                {resumeTitle}
+              </button>
+            )}
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
@@ -243,8 +297,6 @@ export function BuilderClient({
 
         {/* Center: form editor */}
         <div className="space-y-4">
-          <ResumeScoreCard result={score} onAddSkill={addSkill} />
-
           <AccordionSection id="section-personal" icon={User} title="Personal Info" complete={sectionStatus.personal} defaultOpen>
             <PersonalInfoForm content={content} onChange={update} />
           </AccordionSection>
@@ -328,7 +380,7 @@ export function BuilderClient({
         </div>
 
         {/* Right: live preview */}
-        <div className="lg:sticky lg:top-[130px] lg:self-start">
+        <div className="space-y-4 lg:sticky lg:top-[130px] lg:self-start">
           <div className="mb-2 flex items-center justify-between rounded-lg border border-gray-200 bg-white px-3 py-1.5 shadow-sm">
             <span className="text-xs font-medium text-gray-500">Live Preview</span>
             <div className="flex items-center gap-1">
@@ -359,6 +411,7 @@ export function BuilderClient({
               </div>
             </div>
           </div>
+          <ResumeScoreCard result={score} onAddSkill={addSkill} />
         </div>
       </div>
 
@@ -494,14 +547,20 @@ function PersonalInfoForm({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-      <FloatingField id="fullName" label="Full name" value={p.fullName} onChange={(v) => set("fullName", v)} />
-      <FloatingField id="headline" label="Headline" value={p.headline} onChange={(v) => set("headline", v)} />
-      <FloatingField id="email" label="Email" value={p.email} onChange={(v) => set("email", v)} />
-      <FloatingField id="phone" label="Phone" value={p.phone} onChange={(v) => set("phone", v)} />
-      <FloatingField id="location" label="Location" value={p.location} onChange={(v) => set("location", v)} />
-      <FloatingField id="website" label="Website" value={p.website} onChange={(v) => set("website", v)} />
-      <FloatingField id="linkedin" label="LinkedIn" value={p.linkedin} onChange={(v) => set("linkedin", v)} />
+    <div className="space-y-4">
+      <PhotoUpload
+        value={p.photoUrl}
+        onChange={(photoUrl) => set("photoUrl", photoUrl)}
+      />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <FloatingField id="fullName" label="Full name" value={p.fullName} onChange={(v) => set("fullName", v)} />
+        <FloatingField id="headline" label="Headline" value={p.headline} onChange={(v) => set("headline", v)} />
+        <FloatingField id="email" label="Email" value={p.email} onChange={(v) => set("email", v)} />
+        <FloatingField id="phone" label="Phone" value={p.phone} onChange={(v) => set("phone", v)} />
+        <FloatingField id="location" label="Location" value={p.location} onChange={(v) => set("location", v)} />
+        <FloatingField id="website" label="Website" value={p.website} onChange={(v) => set("website", v)} />
+        <FloatingField id="linkedin" label="LinkedIn" value={p.linkedin} onChange={(v) => set("linkedin", v)} />
+      </div>
     </div>
   );
 }

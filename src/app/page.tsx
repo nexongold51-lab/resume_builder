@@ -53,14 +53,6 @@ const STEPS = [
   { title: "Download your PDF", description: "Export a clean, ATS-optimized PDF ready to send to recruiters." },
 ];
 
-const SHOWCASE = [
-  { variant: "classic" as const, accent: "#2563eb" },
-  { variant: "banner" as const, accent: "#0d9488" },
-  { variant: "centered" as const, accent: "#334155" },
-  { variant: "sidebar" as const, accent: "#e11d48" },
-  { variant: "minimal" as const, accent: "#000000" },
-];
-
 const TESTIMONIALS = [
   {
     quote: "I rebuilt my resume in 10 minutes and picked a template that actually matched my industry. Clean and fast.",
@@ -124,9 +116,9 @@ export default function Home() {
             <p className="mt-1 text-[10px] text-zinc-400">*Illustrative figure for demonstration purposes.</p>
           </div>
 
-          <div className="perspective-1000 relative mx-auto">
+          <div className="perspective-1000 relative mx-auto w-full max-w-[420px]">
             <div className="rotate-3 transform transition-transform duration-500 ease-out hover:rotate-0 hover:scale-105">
-              <TemplateThumbnail variant="classic" accent="#2563eb" scale={0.42} heightPx={340} />
+              <TemplateThumbnail variant="classic" accent="#2563eb" />
             </div>
             <span className="absolute -right-4 -top-4 animate-float rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white shadow-lg shadow-emerald-500/40">
               ATS Score: 96

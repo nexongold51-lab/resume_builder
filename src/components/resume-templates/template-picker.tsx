@@ -1,9 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { X, Search } from "lucide-react";
 import { TEMPLATES, CATEGORY_LABELS, type TemplateCategoryId, type TemplateMeta } from "./registry";
+import { TemplateThumbnail } from "./template-thumbnail";
 
-const CATEGORIES = Object.keys(CATEGORY_LABELS) as TemplateCategoryId[];
+type FilterId = "ALL" | TemplateCategoryId;
+
+const FILTERS: { id: FilterId; label: string }[] = [
+  { id: "ALL", label: "All" },
+  { id: "PROFESSIONAL", label: CATEGORY_LABELS.PROFESSIONAL },
+  { id: "MODERN", label: CATEGORY_LABELS.MODERN },
+  { id: "ATS", label: CATEGORY_LABELS.ATS },
+  { id: "MINIMAL", label: CATEGORY_LABELS.MINIMAL },
+  { id: "CREATIVE", label: CATEGORY_LABELS.CREATIVE },
+];
 
 export function TemplatePicker({
   selectedId,
@@ -14,59 +25,112 @@ export function TemplatePicker({
   onSelect: (template: TemplateMeta) => void;
   onClose: () => void;
 }) {
-  const [activeCategory, setActiveCategory] = useState<TemplateCategoryId>(CATEGORIES[0]);
+  const [active, setActive] = useState<FilterId>("ALL");
+  const [query, setQuery] = useState("");
 
-  const templates = useMemo(
-    () => TEMPLATES.filter((t) => t.category === activeCategory),
-    [activeCategory]
-  );
+  const templates = useMemo(() => {
+    const byCategory = active === "ALL" ? TEMPLATES : TEMPLATES.filter((t) => t.category === active);
+    const q = query.trim().toLowerCase();
+    return q ? byCategory.filter((t) => t.name.toLowerCase().includes(q)) : byCategory;
+  }, [active, query]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="flex max-h-[85vh] w-full max-w-3xl flex-col rounded-xl bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-gray-200 p-4">
-          <h2 className="text-lg font-semibold">Choose a Template</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-700">
-            ✕
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="template-picker-title"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="flex max-h-[88vh] w-full max-w-5xl flex-col rounded-2xl bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+          <div>
+            <h2 id="template-picker-title" className="text-lg font-semibold text-gray-900">
+              Choose a template
+            </h2>
+            <p className="text-xs text-gray-500">50 designs across 5 collections. Switch anytime — your content is preserved.</p>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close template picker"
+            className="rounded-md p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <X className="h-5 w-5" />
           </button>
+        </header>
+
+        <div className="flex flex-wrap items-center gap-3 border-b border-gray-200 px-6 py-3">
+          <div role="tablist" aria-label="Filter by collection" className="flex flex-wrap gap-1.5">
+            {FILTERS.map((f) => {
+              const isActive = active === f.id;
+              return (
+                <button
+                  key={f.id}
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActive(f.id)}
+                  className={`rounded-full px-3 py-1.5 text-xs font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                    isActive
+                      ? "bg-primary text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="ml-auto flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1.5">
+            <Search className="h-3.5 w-3.5 text-gray-400" aria-hidden="true" />
+            <input
+              type="search"
+              placeholder="Search templates"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-40 bg-transparent text-xs text-gray-700 outline-none placeholder:text-gray-400"
+              aria-label="Search templates by name"
+            />
+          </div>
         </div>
 
-        <div className="flex gap-1 overflow-x-auto border-b border-gray-200 px-4 py-2">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-medium ${
-                activeCategory === cat
-                  ? "bg-[#2563eb] text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {CATEGORY_LABELS[cat]}
-            </button>
-          ))}
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 overflow-y-auto p-4 sm:grid-cols-3">
-          {templates.map((template) => (
-            <button
-              key={template.id}
-              onClick={() => onSelect(template)}
-              className={`overflow-hidden rounded-lg border-2 text-left transition ${
-                selectedId === template.id ? "border-[#2563eb]" : "border-gray-200 hover:border-gray-300"
-              }`}
-            >
-              <div className="flex h-20 flex-col justify-between p-2" style={{ backgroundColor: `${template.accent}14` }}>
-                <div className="h-2 w-3/4 rounded" style={{ backgroundColor: template.accent }} />
-                <div className="space-y-1">
-                  <div className="h-1 w-full rounded bg-gray-300" />
-                  <div className="h-1 w-5/6 rounded bg-gray-300" />
-                  <div className="h-1 w-2/3 rounded bg-gray-300" />
+        <div className="grid grid-cols-2 gap-4 overflow-y-auto p-6 sm:grid-cols-3 md:grid-cols-4">
+          {templates.length === 0 && (
+            <p className="col-span-full py-12 text-center text-sm text-gray-500">
+              No templates match &ldquo;{query}&rdquo;.
+            </p>
+          )}
+          {templates.map((template) => {
+            const isSelected = selectedId === template.id;
+            return (
+              <button
+                key={template.id}
+                onClick={() => onSelect(template)}
+                aria-pressed={isSelected}
+                aria-label={`Select ${template.name} template`}
+                className={`group flex flex-col overflow-hidden rounded-xl bg-white text-left ring-2 transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                  isSelected
+                    ? "ring-primary shadow-md"
+                    : "ring-gray-200 hover:-translate-y-0.5 hover:ring-gray-300 hover:shadow-md"
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <TemplateThumbnail
+                    variant={template.variant}
+                    accent={template.accent}
+                  />
                 </div>
-              </div>
-              <p className="p-2 text-xs font-medium text-gray-700">{template.name}</p>
-            </button>
-          ))}
+                <div className="flex items-center justify-between gap-2 px-3 py-2.5">
+                  <p className="truncate text-sm font-medium text-gray-900">{template.name}</p>
+                  <span className="shrink-0 text-[10px] font-medium uppercase tracking-wider text-gray-400">
+                    {CATEGORY_LABELS[template.category]}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
