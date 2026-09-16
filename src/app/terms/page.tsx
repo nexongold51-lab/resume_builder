@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function TermsPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 text-sm text-gray-700">
@@ -10,7 +12,7 @@ export default function TermsPage() {
         <p>
           Free accounts may download resumes with a watermark. Paid subscriptions unlock unlimited watermark-free
           downloads and premium features, as described on our{" "}
-          <a href="/pricing" className="text-primary hover:underline">Pricing page</a>.
+          <Link href="/pricing" className="text-primary hover:underline">Pricing page</Link>.
         </p>
         <p>We reserve the right to suspend accounts that violate these terms.</p>
       </div>

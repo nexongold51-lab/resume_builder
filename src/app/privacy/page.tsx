@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function PrivacyPolicyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 text-sm text-gray-700">
@@ -16,7 +18,7 @@ export default function PrivacyPolicyPage() {
         </p>
         <p>
           If you have questions about this policy, contact us at the address listed on our{" "}
-          <a href="/contact" className="text-primary hover:underline">Contact page</a>.
+          <Link href="/contact" className="text-primary hover:underline">Contact page</Link>.
         </p>
       </div>
     </div>

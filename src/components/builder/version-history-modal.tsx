@@ -27,6 +27,8 @@ export function VersionHistoryModal({
   }
 
   useEffect(() => {
+    // Standard fetch-on-mount pattern; setLoading/setVersions run inside the async load(), not the effect body itself.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

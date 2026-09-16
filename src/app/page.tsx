@@ -77,13 +77,13 @@ export default function Home() {
       {/* Hero */}
       <div className="relative overflow-hidden">
         {/* decorative glow blobs */}
-        <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 animate-float rounded-full bg-[#2563eb]/20 blur-3xl" />
+        <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 animate-float rounded-full bg-primary/20 blur-3xl" />
         <div className="pointer-events-none absolute -right-16 top-32 h-80 w-80 animate-float-delayed rounded-full bg-violet-400/20 blur-3xl" />
         <div className="pointer-events-none absolute left-1/3 top-64 h-56 w-56 animate-float rounded-full bg-emerald-300/10 blur-3xl" />
 
         <div className="relative mx-auto grid max-w-6xl grid-cols-1 items-center gap-12 px-6 py-20 lg:grid-cols-2">
           <div>
-            <span className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-[#2563eb]/10 px-3 py-1 text-xs font-medium text-[#2563eb]">
+            <span className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
               <Sparkles className="h-3.5 w-3.5" />
               ResumePro AI
             </span>
@@ -123,7 +123,7 @@ export default function Home() {
             <span className="absolute -right-4 -top-4 animate-float rounded-full bg-emerald-500 px-3 py-1 text-xs font-semibold text-white shadow-lg shadow-emerald-500/40">
               ATS Score: 96
             </span>
-            <span className="absolute -bottom-4 -left-4 animate-float-delayed rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#2563eb] shadow-lg ring-1 ring-gray-100">
+            <span className="absolute -bottom-4 -left-4 animate-float-delayed rounded-full bg-white px-3 py-1 text-xs font-semibold text-primary shadow-lg ring-1 ring-gray-100">
               ✓ PDF Ready
             </span>
           </div>
@@ -137,7 +137,7 @@ export default function Home() {
           <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-3">
             {STEPS.map((step, i) => (
               <div key={step.title} className="text-center sm:text-left">
-                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-[#2563eb] to-violet-600 text-sm font-semibold text-white shadow-md shadow-[#2563eb]/30 sm:mx-0">
+                <div className="mx-auto flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-violet-600 text-sm font-semibold text-white shadow-md shadow-primary/30 sm:mx-0">
                   {i + 1}
                 </div>
                 <h3 className="mt-3 font-semibold text-zinc-900">{step.title}</h3>
@@ -158,7 +158,7 @@ export default function Home() {
           <div className="mt-10">
             <TemplateGallery />
           </div>
-          <Link href="/signup" className="mt-8 inline-block text-sm font-medium text-[#2563eb] hover:underline">
+          <Link href="/signup" className="mt-8 inline-block text-sm font-medium text-primary hover:underline">
             Browse all 50 templates →
           </Link>
         </div>
@@ -172,7 +172,7 @@ export default function Home() {
               key={feature.title}
               className="rounded-xl border border-transparent p-4 text-center transition hover:-translate-y-1 hover:border-gray-100 hover:shadow-lg sm:text-left"
             >
-              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-[#2563eb]/10 to-violet-500/10 text-[#2563eb] sm:mx-0">
+              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-primary/10 to-violet-500/10 text-primary sm:mx-0">
                 <feature.icon className="h-5 w-5" />
               </div>
               <h3 className="mt-3 font-semibold text-zinc-900">{feature.title}</h3>
@@ -213,7 +213,7 @@ export default function Home() {
       </div>
 
       {/* Final CTA */}
-      <div className="relative overflow-hidden border-t border-gray-200 bg-gradient-to-br from-[#2563eb] to-violet-700 px-6 py-16 text-center">
+      <div className="relative overflow-hidden border-t border-gray-200 bg-gradient-to-br from-primary to-violet-700 px-6 py-16 text-center">
         <div className="pointer-events-none absolute -left-10 -top-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
         <div className="pointer-events-none absolute -right-10 -bottom-10 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
         <div className="relative">
@@ -221,7 +221,7 @@ export default function Home() {
           <p className="mt-2 text-sm text-white/80">It only takes a few minutes to get started.</p>
           <Link
             href="/signup"
-            className="mt-6 inline-block rounded-md bg-white px-5 py-2.5 text-sm font-medium text-[#2563eb] shadow-lg transition hover:-translate-y-0.5 hover:bg-gray-100 hover:shadow-xl"
+            className="mt-6 inline-block rounded-md bg-white px-5 py-2.5 text-sm font-medium text-primary shadow-lg transition hover:-translate-y-0.5 hover:bg-gray-100 hover:shadow-xl"
           >
             Get Started Free
           </Link>

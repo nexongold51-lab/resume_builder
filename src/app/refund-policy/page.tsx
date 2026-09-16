@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function RefundPolicyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 text-sm text-gray-700">
@@ -9,7 +11,7 @@ export default function RefundPolicyPage() {
         <p>
           Subscription plans (Monthly, 3 Months, 6 Months) are billed upfront. If you are not satisfied within 7
           days of purchase and have not downloaded a watermark-free resume, contact{" "}
-          <a href="/contact" className="text-primary hover:underline">support</a> for a refund.
+          <Link href="/contact" className="text-primary hover:underline">support</Link> for a refund.
         </p>
         <p>No real payment processing is currently integrated in this application.</p>
       </div>

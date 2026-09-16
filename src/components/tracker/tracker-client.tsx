@@ -34,38 +34,61 @@ export function TrackerClient({
   const [role, setRole] = useState("");
   const [resumeId, setResumeId] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function addApplication(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
-    const res = await fetch("/api/applications", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ company, role, resumeId: resumeId || null }),
-    });
-    setSubmitting(false);
-    if (res.ok) {
+    setError(null);
+    try {
+      const res = await fetch("/api/applications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company, role, resumeId: resumeId || null }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error ?? "Failed to add application.");
+      }
       const data = await res.json();
       const resume = resumes.find((r) => r.id === resumeId) ?? null;
       setApplications([{ ...data.application, resume }, ...applications]);
       setCompany("");
       setRole("");
       setResumeId("");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to add application.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
   async function updateStatus(id: string, status: Status) {
+    const previous = applications;
     setApplications(applications.map((a) => (a.id === id ? { ...a, status } : a)));
-    await fetch(`/api/applications/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
+    try {
+      const res = await fetch(`/api/applications/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error("Failed to update status.");
+    } catch {
+      setApplications(previous);
+      setError("Failed to update status. Please try again.");
+    }
   }
 
   async function remove(id: string) {
+    const previous = applications;
     setApplications(applications.filter((a) => a.id !== id));
-    await fetch(`/api/applications/${id}`, { method: "DELETE" });
+    try {
+      const res = await fetch(`/api/applications/${id}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete application.");
+    } catch {
+      setApplications(previous);
+      setError("Failed to delete application. Please try again.");
+    }
   }
 
   return (
@@ -109,6 +132,12 @@ export function TrackerClient({
         </button>
       </form>
 
+      {error && (
+        <p role="alert" className="mb-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+          {error}
+        </p>
+      )}
+
       <div className="space-y-3">
         {applications.map((app) => (
           <div key={app.id} className="flex items-center justify-between rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
@@ -123,6 +152,7 @@ export function TrackerClient({
               <select
                 value={app.status}
                 onChange={(e) => updateStatus(app.id, e.target.value as Status)}
+                aria-label={`Status for ${app.role} at ${app.company}`}
                 className={`rounded-full border-0 px-3 py-1 text-xs font-medium ${STATUS_COLORS[app.status]}`}
               >
                 <option value="APPLIED">Applied</option>
@@ -130,8 +160,12 @@ export function TrackerClient({
                 <option value="OFFER">Offer</option>
                 <option value="REJECTED">Rejected</option>
               </select>
-              <button onClick={() => remove(app.id)} className="text-gray-400 hover:text-red-500">
-                <Trash2 className="h-4 w-4" />
+              <button
+                onClick={() => remove(app.id)}
+                aria-label={`Delete application for ${app.role} at ${app.company}`}
+                className="text-gray-400 hover:text-red-500"
+              >
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
               </button>
             </div>
           </div>

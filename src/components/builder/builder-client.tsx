@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -26,6 +26,7 @@ import {
   Check,
   Loader2,
   Wand2,
+  AlertCircle,
 } from "lucide-react";
 import type { ResumeContent, ExperienceItem, EducationItem, ProjectItem, ReferenceItem } from "@/types/resume";
 import { ResumeTemplate } from "@/components/resume-templates/resume-template";
@@ -61,7 +62,7 @@ export function BuilderClient({
   const [content, setContent] = useState<ResumeContent>(initialContent);
   const [template, setTemplate] = useState<TemplateMeta>(getTemplateById(initialTemplateId));
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved">("idle");
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
   const [zoom, setZoom] = useState(0.55);
   const [reportOpen, setReportOpen] = useState(false);
@@ -73,6 +74,14 @@ export function BuilderClient({
   const [titleDraft, setTitleDraft] = useState(title);
   const [editingTitle, setEditingTitle] = useState(false);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const retryTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (saveTimeout.current) clearTimeout(saveTimeout.current);
+      if (retryTimeout.current) clearTimeout(retryTimeout.current);
+    };
+  }, []);
 
   async function commitTitle() {
     const next = titleDraft.trim();
@@ -93,22 +102,29 @@ export function BuilderClient({
     }
   }
 
-  const scheduleSave = useCallback(
-    (next: ResumeContent, templateId: string) => {
-      if (saveTimeout.current) clearTimeout(saveTimeout.current);
-      saveTimeout.current = setTimeout(async () => {
-        setSaveState("saving");
-        await fetch(`/api/resumes/${resumeId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ content: next, templateId }),
-        });
-        setSaveState("saved");
-        setLastSavedAt(new Date());
-      }, 800);
-    },
-    [resumeId]
-  );
+  async function performSave(next: ResumeContent, templateId: string) {
+    setSaveState("saving");
+    try {
+      const res = await fetch(`/api/resumes/${resumeId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: next, templateId }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      setSaveState("saved");
+      setLastSavedAt(new Date());
+    } catch {
+      setSaveState("error");
+      // Auto-retry once after a short delay so a transient network blip doesn't leave work unsaved.
+      retryTimeout.current = setTimeout(() => performSave(next, templateId), 5000);
+    }
+  }
+
+  function scheduleSave(next: ResumeContent, templateId: string) {
+    if (saveTimeout.current) clearTimeout(saveTimeout.current);
+    if (retryTimeout.current) clearTimeout(retryTimeout.current);
+    saveTimeout.current = setTimeout(() => performSave(next, templateId), 800);
+  }
 
   function update(next: ResumeContent) {
     setContent(next);
@@ -432,7 +448,7 @@ function SaveIndicator({
   state,
   lastSavedAt,
 }: {
-  state: "idle" | "saving" | "saved";
+  state: "idle" | "saving" | "saved" | "error";
   lastSavedAt: Date | null;
 }) {
   const [, forceTick] = useState(0);
@@ -444,15 +460,26 @@ function SaveIndicator({
 
   if (state === "idle") return null;
 
+  if (state === "error") {
+    return (
+      <span
+        role="status"
+        className="animate-toast-in flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700"
+      >
+        <AlertCircle className="h-3 w-3" aria-hidden="true" /> Couldn&apos;t save — retrying…
+      </span>
+    );
+  }
+
   return (
-    <span className="animate-toast-in flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+    <span role="status" className="animate-toast-in flex items-center gap-1.5 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
       {state === "saving" ? (
         <>
-          <Loader2 className="h-3 w-3 animate-spin" /> Saving…
+          <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" /> Saving…
         </>
       ) : (
         <>
-          <Check className="h-3 w-3 text-success" /> Saved{lastSavedAt ? ` · ${relativeTime(lastSavedAt)}` : ""}
+          <Check className="h-3 w-3 text-success" aria-hidden="true" /> Saved{lastSavedAt ? ` · ${relativeTime(lastSavedAt)}` : ""}
         </>
       )}
     </span>

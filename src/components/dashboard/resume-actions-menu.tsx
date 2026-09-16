@@ -19,8 +19,6 @@ export function ResumeActionsMenu({
   const [error, setError] = useState<string | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => setTitle(currentTitle), [currentTitle]);
-
   useEffect(() => {
     if (!open) return;
     const onDocClick = (e: MouseEvent) => {
@@ -109,6 +107,7 @@ export function ResumeActionsMenu({
                 role="menuitem"
                 onClick={(e) => {
                   e.preventDefault();
+                  setTitle(currentTitle);
                   setMode("renaming");
                 }}
                 className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-sm text-gray-700 hover:bg-gray-50"
