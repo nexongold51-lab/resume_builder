@@ -12,7 +12,7 @@ export async function buildResumeDocx(content: ResumeContent, isPremium: boolean
   if (!isPremium) {
     children.push(
       new Paragraph({
-        children: [new TextRun({ text: "Created with ResumePro AI — Free Plan", italics: true, color: "999999" })],
+        children: [new TextRun({ text: "Created with ResumePro AI -  Free Plan", italics: true, color: "999999" })],
         spacing: { after: 200 },
       })
     );
@@ -39,7 +39,7 @@ export async function buildResumeDocx(content: ResumeContent, isPremium: boolean
       children.push(
         new Paragraph({
           children: [
-            new TextRun({ text: `${exp.role}${exp.company ? ` — ${exp.company}` : ""}`, bold: true }),
+            new TextRun({ text: `${exp.role}${exp.company ? ` -${exp.company}` : ""}`, bold: true }),
             new TextRun({ text: `  (${exp.startDate} - ${exp.current ? "Present" : exp.endDate})`, italics: true }),
           ],
         })
@@ -88,7 +88,7 @@ export async function buildResumeDocx(content: ResumeContent, isPremium: boolean
   if (content.references.length > 0) {
     children.push(heading("References"));
     for (const ref of content.references) {
-      children.push(new Paragraph({ text: `${ref.name}${ref.role ? ` — ${ref.role}` : ""}${ref.contact ? ` (${ref.contact})` : ""}` }));
+      children.push(new Paragraph({ text: `${ref.name}${ref.role ? ` -${ref.role}` : ""}${ref.contact ? ` (${ref.contact})` : ""}` }));
     }
   }
 

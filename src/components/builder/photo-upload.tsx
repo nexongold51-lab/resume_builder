@@ -68,7 +68,7 @@ export function PhotoUpload({
           )}
         </div>
         <p className="text-[11px] text-gray-500">
-          Square JPG or PNG, up to 5 MB. Auto-cropped to 320×320. Optional — many templates work great without a photo.
+          Square JPG or PNG, up to 5 MB. Auto-cropped to 320×320. Optional -  many templates work great without a photo.
         </p>
         {error && <p className="text-[11px] text-red-600">{error}</p>}
       </div>

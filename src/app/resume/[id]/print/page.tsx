@@ -53,7 +53,7 @@ export default async function ResumePrintPage({
             className="pointer-events-none absolute inset-0 z-10 flex select-none items-center justify-center overflow-hidden"
           >
             <span className="-rotate-45 whitespace-nowrap text-6xl font-bold text-gray-900/5">
-              ResumePro AI — Free Plan
+              ResumePro AI -  Free Plan
             </span>
           </div>
         )}

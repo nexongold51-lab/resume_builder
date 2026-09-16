@@ -93,7 +93,7 @@ function ExperienceBlock({ content, variant, accent }: { content: ResumeContent;
           )}
           <div className="flex items-baseline justify-between gap-2">
             <p className="font-semibold text-gray-900">
-              {exp.role} {exp.company && <span className="font-normal text-gray-700">— {exp.company}</span>}
+              {exp.role} {exp.company && <span className="font-normal text-gray-700">-{exp.company}</span>}
             </p>
             <p className="shrink-0 text-[11px] text-gray-500">
               {exp.startDate} - {exp.current ? "Present" : exp.endDate}
@@ -138,7 +138,7 @@ function ProjectsBlock({ content, variant, accent }: { content: ResumeContent; v
       {content.projects.map((proj) => (
         <div key={proj.id} className="mb-2">
           <p className="font-semibold text-gray-900">
-            {proj.name} {proj.link && <span className="font-normal text-gray-700">— {proj.link}</span>}
+            {proj.name} {proj.link && <span className="font-normal text-gray-700">-{proj.link}</span>}
           </p>
           {proj.description && <p className="mt-0.5 whitespace-pre-line text-gray-700">{proj.description}</p>}
         </div>
@@ -192,7 +192,7 @@ function ReferencesBlock({ content, variant, accent }: { content: ResumeContent;
       {content.references.map((ref) => (
         <p key={ref.id} className="text-gray-700">
           <span className="font-semibold text-gray-900">{ref.name}</span>
-          {ref.role && ` — ${ref.role}`}
+          {ref.role && ` -${ref.role}`}
           {ref.contact && ` (${ref.contact})`}
         </p>
       ))}

@@ -1,4 +1,4 @@
-# ResumePro AI — Resume Builder
+# ResumePro AI - Resume Builder
 
 Create Professional ATS-Friendly Resumes That Get Interviews.
 
@@ -12,11 +12,11 @@ Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · Prisma 7 · NextAuth
 2. Start Postgres locally and create a database (see `scripts/setup-postgres.sh` for a reference setup).
 3. Copy `.env.example` to `.env` and fill in `DATABASE_URL` / `AUTH_SECRET` (generate with `openssl rand -base64 32`).
 4. Push the schema: `npx prisma db push`
-5. Run the app: `npm run dev` — open http://localhost:3000
+5. Run the app: `npm run dev` - open http://localhost:3000
 
 ## Running with Docker
 
-This spins up the app **and** a PostgreSQL database in containers — no local Postgres install needed.
+This spins up the app **and** a PostgreSQL database in containers - no local Postgres install needed.
 
 1. Copy the env template and fill in secrets:
    ```bash
@@ -35,12 +35,12 @@ To stop: `docker compose down` (add `-v` to also delete the database volume).
 
 ## Project Structure
 
-- `src/app` — Next.js App Router pages and API routes
-- `src/components` — UI components (builder, dashboard, resume templates)
-- `src/auth.ts` — NextAuth configuration (Google OAuth + email/password credentials)
-- `src/proxy.ts` — Route protection (Next.js 16 renamed `middleware.ts` to `proxy.ts`)
-- `prisma/schema.prisma` — Database schema
-- `prisma.config.ts` — Prisma 7 CLI configuration (connection URL lives here, not in schema.prisma)
+- `src/app` - Next.js App Router pages and API routes
+- `src/components` - UI components (builder, dashboard, resume templates)
+- `src/auth.ts` - NextAuth configuration (Google OAuth + email/password credentials)
+- `src/proxy.ts` - Route protection (Next.js 16 renamed `middleware.ts` to `proxy.ts`)
+- `prisma/schema.prisma` - Database schema
+- `prisma.config.ts` - Prisma 7 CLI configuration (connection URL lives here, not in schema.prisma)
 
 
 ## Deploy on Vercel

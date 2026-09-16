@@ -19,21 +19,21 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
   title: {
-    default: "ResumePro AI — Create Professional ATS-Friendly Resumes",
+    default: "ResumePro AI -  Create Professional ATS-Friendly Resumes",
     template: "%s · ResumePro AI",
   },
   description:
     "Build job-winning, ATS-friendly resumes with 50 professional templates. Live preview, auto-save, and instant PDF export.",
   keywords: ["resume builder", "ATS resume", "resume templates", "CV builder", "job application"],
   openGraph: {
-    title: "ResumePro AI — Create Professional ATS-Friendly Resumes",
+    title: "ResumePro AI -  Create Professional ATS-Friendly Resumes",
     description: "Build job-winning, ATS-friendly resumes with 50 professional templates in minutes.",
     type: "website",
     siteName: "ResumePro AI",
   },
   twitter: {
     card: "summary_large_image",
-    title: "ResumePro AI — Create Professional ATS-Friendly Resumes",
+    title: "ResumePro AI -  Create Professional ATS-Friendly Resumes",
     description: "Build job-winning, ATS-friendly resumes with 50 professional templates in minutes.",
   },
 };

@@ -51,7 +51,7 @@ export function TemplatePicker({
             <h2 id="template-picker-title" className="text-lg font-semibold text-gray-900">
               Choose a template
             </h2>
-            <p className="text-xs text-gray-500">50 designs across 5 collections. Switch anytime — your content is preserved.</p>
+            <p className="text-xs text-gray-500">50 designs across 5 collections. Switch anytime -  your content is preserved.</p>
           </div>
           <button
             onClick={onClose}

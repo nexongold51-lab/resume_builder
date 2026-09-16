@@ -6,7 +6,7 @@ import { SAMPLE_RESUME } from "@/lib/sample-resume";
 
 // The resume renders at its natural US-Letter width (8.5in = 816px). We wrap it in a paper-shaped
 // (8.5:11) card and use CSS container queries to scale the inner content so it always fills the
-// container width — no wasted margins regardless of grid cell size.
+// container width -  no wasted margins regardless of grid cell size.
 const PAGE_WIDTH_PX = 816;
 
 export function TemplateThumbnail({
@@ -26,7 +26,7 @@ export function TemplateThumbnail({
           {
             width: `${PAGE_WIDTH_PX}px`,
             transformOrigin: "top left",
-            "--thumb-scale": `calc(100cqw / ${PAGE_WIDTH_PX})`,
+            "--thumb-scale": `calc(100cqw / ${PAGE_WIDTH_PX}px)`,
             transform: "scale(var(--thumb-scale))",
           } as React.CSSProperties
         }

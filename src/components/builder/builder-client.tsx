@@ -466,7 +466,7 @@ function SaveIndicator({
         role="status"
         className="animate-toast-in flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-700"
       >
-        <AlertCircle className="h-3 w-3" aria-hidden="true" /> Couldn&apos;t save — retrying…
+        <AlertCircle className="h-3 w-3" aria-hidden="true" /> Couldn&apos;t save -  retrying…
       </span>
     );
   }

@@ -85,7 +85,7 @@ export function AuthShell({
             </ul>
 
             <p className="text-xs text-white/60">
-              &ldquo;I rebuilt my resume in 10 minutes and got 3 callbacks the same week.&rdquo; — Priya S.
+              &ldquo;I rebuilt my resume in 10 minutes and got 3 callbacks the same week.&rdquo; -  Priya S.
               <br />
               <span className="text-white/40">*Illustrative testimonial for demonstration purposes.</span>
             </p>

@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   // @auth/prisma-adapter's types target the default @prisma/client output; our schema
   // generates to a custom path (Prisma 7 requirement), so the client shape is identical
-  // at runtime but structurally distinct to TS — safe to cast.
+  // at runtime but structurally distinct to TS -  safe to cast.
   adapter: PrismaAdapter(prisma as unknown as Parameters<typeof PrismaAdapter>[0]),
   session: { strategy: "jwt" },
   pages: {

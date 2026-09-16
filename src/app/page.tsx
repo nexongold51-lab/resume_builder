@@ -18,7 +18,7 @@ const FEATURES = [
   {
     icon: LayoutTemplate,
     title: "50 ATS-Friendly Templates",
-    description: "Professional, Modern, Executive, Creative, and Minimal ATS designs — pick a style and color that fits you.",
+    description: "Professional, Modern, Executive, Creative, and Minimal ATS designs -  pick a style and color that fits you.",
   },
   {
     icon: Zap,
@@ -33,7 +33,7 @@ const FEATURES = [
   {
     icon: ListChecks,
     title: "Structured Sections",
-    description: "Personal info, summary, skills, experience, education, and projects — all editable and reorderable.",
+    description: "Personal info, summary, skills, experience, education, and projects -  all editable and reorderable.",
   },
   {
     icon: Save,
@@ -43,7 +43,7 @@ const FEATURES = [
   {
     icon: ShieldCheck,
     title: "No Paid Cloud Lock-In",
-    description: "Your data lives in your own database — no mandatory paid cloud services required to run the app.",
+    description: "Your data lives in your own database -  no mandatory paid cloud services required to run the app.",
   },
 ];
 
@@ -153,7 +153,7 @@ export default function Home() {
         <div className="mx-auto max-w-6xl text-center">
           <h2 className="text-2xl font-semibold text-zinc-900">50 Templates Across 5 Categories</h2>
           <p className="mt-2 text-sm text-zinc-600">
-            Professional · Modern · Executive · Creative · Minimal ATS — each with 10 color themes.
+            Professional · Modern · Executive · Creative · Minimal ATS -  each with 10 color themes.
           </p>
           <div className="mt-10">
             <TemplateGallery />

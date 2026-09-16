@@ -2,14 +2,16 @@
 
 import { useState } from "react";
 
-const FAQS = [
+export type FaqItem = { q: string; a: string };
+
+const DEFAULT_FAQS: FaqItem[] = [
   {
     q: "Is ResumePro AI really free to use?",
     a: "Yes. You can create resumes, edit every section, and use any of the 50 templates for free. A subscription only unlocks unlimited watermark-free downloads and premium features.",
   },
   {
     q: "Are the templates ATS-friendly?",
-    a: "Every template uses standard single-column text flow, real headings, and no tables — so applicant tracking systems can parse your resume correctly.",
+    a: "Every template uses standard single-column text flow, real headings, and no tables -  so applicant tracking systems can parse your resume correctly.",
   },
   {
     q: "Can I change templates after I start editing?",
@@ -17,19 +19,20 @@ const FAQS = [
   },
   {
     q: "How do I download my resume as a PDF?",
-    a: "Click \"Download PDF\" in the builder — it opens a print-optimized view and triggers your browser's print-to-PDF dialog.",
+    a: "Click \"Download PDF\" in the builder -  it opens a print-optimized view and triggers your browser's print-to-PDF dialog.",
   },
 ];
 
-export function FaqAccordion() {
+export function FaqAccordion({ items = DEFAULT_FAQS }: { items?: FaqItem[] }) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
     <div className="mx-auto max-w-2xl divide-y divide-gray-200">
-      {FAQS.map((faq, i) => (
+      {items.map((faq, i) => (
         <div key={faq.q} className="py-4">
           <button
             onClick={() => setOpenIndex(openIndex === i ? null : i)}
+            aria-expanded={openIndex === i}
             className="flex w-full items-center justify-between text-left"
           >
             <span className="font-medium text-gray-900">{faq.q}</span>

@@ -47,7 +47,7 @@ function LoginForm() {
     <AuthShell
       eyebrow="Welcome back"
       title="Log in to ResumePro AI"
-      subtitle="Pick up where you left off — your resumes are safe."
+      subtitle="Pick up where you left off -  your resumes are safe."
       footer={
         <>
           Don&apos;t have an account?{" "}
