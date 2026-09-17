@@ -33,8 +33,8 @@ export function AuthShell({
   footer: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-white">
-      <div className="mx-auto grid min-h-screen max-w-[1440px] grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="min-h-dvh bg-white">
+      <div className="mx-auto grid min-h-dvh max-w-[1440px] grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         {/* Form column */}
         <div className="flex flex-col justify-center px-6 py-12 sm:px-10 lg:px-16">
           <div className="mx-auto w-full max-w-md">

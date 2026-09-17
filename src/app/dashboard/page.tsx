@@ -37,7 +37,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-[1280px] px-4 py-12 sm:px-6 sm:py-14 md:px-8 md:py-16">
-      <header className="mb-12 flex items-start justify-between gap-6">
+      <header className="mb-12 flex flex-wrap items-start justify-between gap-6">
         <div>
           <h1 className="text-3xl font-semibold tracking-tight text-gray-900">Your Resumes</h1>
           <p className="mt-2 text-sm text-gray-500">

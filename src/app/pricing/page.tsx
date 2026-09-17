@@ -309,17 +309,17 @@ export default function PricingPage() {
           <p className="mb-8 text-center text-sm text-zinc-500">
             An illustrative comparison against typical resume builders like Canva, Zety, Resume.io, and Novoresume.
           </p>
-          <div className="overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
-            <table className="w-full border-collapse text-sm">
+          <div className="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm">
+            <table className="w-full min-w-[480px] border-collapse text-sm">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="px-5 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <th className="px-3 py-4 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 sm:px-5">
                     Feature
                   </th>
-                  <th className="border-x border-gray-200 bg-primary-light/40 px-5 py-4 text-xs font-semibold uppercase tracking-wide text-primary">
+                  <th className="border-x border-gray-200 bg-primary-light/40 px-3 py-4 text-xs font-semibold uppercase tracking-wide text-primary sm:px-5">
                     ResumePro AI
                   </th>
-                  <th className="px-5 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  <th className="px-3 py-4 text-xs font-semibold uppercase tracking-wide text-gray-500 sm:px-5">
                     Typical Builders
                   </th>
                 </tr>
@@ -327,11 +327,11 @@ export default function PricingPage() {
               <tbody>
                 {COMPARISON.map((row) => (
                   <tr key={row.feature} className="border-t border-gray-200 transition hover:bg-gray-50/60">
-                    <td className="px-5 py-4 font-medium text-gray-800">{row.feature}</td>
-                    <td className="border-x border-gray-200 bg-primary-light/20 px-5 py-4">
+                    <td className="px-3 py-4 font-medium text-gray-800 sm:px-5">{row.feature}</td>
+                    <td className="border-x border-gray-200 bg-primary-light/20 px-3 py-4 sm:px-5">
                       <ComparisonValue value={row.ours} emphasize />
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-3 py-4 sm:px-5">
                       <ComparisonValue value={row.others} />
                     </td>
                   </tr>

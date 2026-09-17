@@ -27,6 +27,7 @@ import {
   Loader2,
   Wand2,
   AlertCircle,
+  MoreVertical,
 } from "lucide-react";
 import type { ResumeContent, ExperienceItem, EducationItem, ProjectItem, ReferenceItem } from "@/types/resume";
 import { ResumeTemplate } from "@/components/resume-templates/resume-template";
@@ -69,6 +70,7 @@ export function BuilderClient({
   const [jobMatchOpen, setJobMatchOpen] = useState(false);
   const [coverLetterOpen, setCoverLetterOpen] = useState(false);
   const [versionsOpen, setVersionsOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [shareStatus, setShareStatus] = useState<"idle" | "sharing" | "copied">("idle");
   const [resumeTitle, setResumeTitle] = useState(title);
   const [titleDraft, setTitleDraft] = useState(title);
@@ -200,7 +202,7 @@ export function BuilderClient({
   ];
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-dvh bg-surface">
       {/* Toolbar */}
       <div className="sticky top-[57px] z-30 border-b border-gray-200 bg-white/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3">
@@ -299,8 +301,85 @@ export function BuilderClient({
               className="flex items-center gap-1.5 rounded-lg bg-success px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-600 sm:text-sm"
             >
               <Download className="h-3.5 w-3.5" />
-              Download PDF
+              <span className="hidden sm:inline">Download PDF</span>
+              <span className="sm:hidden">PDF</span>
             </a>
+            {/* Mobile-only overflow menu: template, ATS report, job match, cover letter, history, share, docx */}
+            <div className="relative sm:hidden">
+              <button
+                onClick={() => setMobileMenuOpen((v) => !v)}
+                aria-label="More actions"
+                aria-expanded={mobileMenuOpen}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50"
+              >
+                <MoreVertical className="h-4 w-4" />
+              </button>
+              {mobileMenuOpen && (
+                <div className="absolute right-0 top-full z-40 mt-2 w-52 rounded-lg border border-gray-200 bg-white py-1.5 shadow-lg">
+                  <button
+                    onClick={() => {
+                      setPickerOpen(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    🎨 {template.name}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setReportOpen(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <ClipboardCheck className="h-3.5 w-3.5" /> ATS Report
+                  </button>
+                  <button
+                    onClick={() => {
+                      setJobMatchOpen(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Target className="h-3.5 w-3.5" /> Job Match
+                  </button>
+                  <button
+                    onClick={() => {
+                      setCoverLetterOpen(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Mail className="h-3.5 w-3.5" /> Cover Letter
+                  </button>
+                  <button
+                    onClick={() => {
+                      setVersionsOpen(true);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <History className="h-3.5 w-3.5" /> History
+                  </button>
+                  <button
+                    onClick={() => {
+                      shareResume();
+                      setMobileMenuOpen(false);
+                    }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Share2 className="h-3.5 w-3.5" /> Share
+                  </button>
+                  <a
+                    href={`/api/resumes/${resumeId}/docx`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <FileDown className="h-3.5 w-3.5" /> DOCX
+                  </a>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -54,7 +54,7 @@ export function TemplateGallery() {
               </div>
               <ul
                 role="list"
-                className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+                className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 md:grid-cols-4 lg:grid-cols-5"
               >
                 {items.map((t) => (
                   <TemplateCard key={t.id} template={t} />
@@ -100,7 +100,7 @@ export function TemplateGallery() {
 
         <ul
           role="list"
-          className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5"
+          className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0 sm:pb-0 md:grid-cols-4 lg:grid-cols-5"
         >
           {templates.map((t) => (
             <TemplateCard key={t.id} template={t} />
@@ -113,7 +113,7 @@ export function TemplateGallery() {
 
 function TemplateCard({ template }: { template: TemplateMeta }) {
   return (
-    <li>
+    <li className="w-36 shrink-0 snap-start sm:w-auto sm:shrink">
       <Link
         href={`/signup?template=${template.id}`}
         aria-label={`Use ${template.name} template`}
